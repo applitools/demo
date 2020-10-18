@@ -26,34 +26,23 @@
   color: white;
 }
 
-.fixed_header{
-    width: 500px;
-    table-layout: fixed;
-    border-collapse: collapse;
+.center {
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.fixed_header tbody{
-  display:block;
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
   width: 100%;
-  overflow: auto;
-  height: 200px;
+  border: 1px solid #ddd;
 }
 
-.fixed_header thead tr {
-   display: block;
-}
-
-.fixed_header thead {
-  background: black;
-  color:#fff;
-}
-
-.fixed_header th, .fixed_header td {
-  padding: 5px;
+th, td {
   text-align: left;
-  width: 200px;
+  padding: 16px;
 }
 
-.fixed_header tr:nth-child(even) {
+tr:nth-child(even) {
   background-color: #f2f2f2;
 }
