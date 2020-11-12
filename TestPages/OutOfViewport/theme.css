@@ -2,6 +2,7 @@ body {
   margin: 10px;
   background-color: #274469;
   color: white;
+  font-family: 'Roboto', sans-serif;
 }
 .content {
   width: 800px;

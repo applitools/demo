@@ -1,6 +1,9 @@
 @import url('innerstyle1.css');
+body {
+  font-family: 'Roboto', sans-serif;
+}
 p {
-color: purple;
-display: block;
-border: 2px solid darkslateblue;
+  color: purple;
+  display: block;
+  border: 2px solid darkslateblue;
 }
