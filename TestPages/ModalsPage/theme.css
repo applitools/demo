@@ -6,6 +6,9 @@ body {
   padding: 20px 10px;
   max-width: 1080px;
 }
+button {
+  font-family: 'Roboto', sans-serif;
+}
 p {
   text-align: justify;
 }
