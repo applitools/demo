@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adopted StyleSheets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto" rel="stylesheet">
+    <style>
+        html { font-family: Roboto; font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div>hi there, i'm red</div>
+    <div class="host"></div>
+    <script>
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync('div { color: red; } span {justify-content:center; align-content:center;}');
+        document.adoptedStyleSheets = [sheet]
+
+        const host = document.querySelector('.host')
+        const shadow = host.attachShadow({mode: 'open'})
+        shadow.innerHTML = "<div>hi there, i'm blue</div>"
+        const shadowSheet = new CSSStyleSheet();
+        shadowSheet.replaceSync('div { color: blue; }');
+        shadow.adoptedStyleSheets = [shadowSheet]
+    </script>
+
+    <div class="host-for-stylesheet-with-vars"></div>
+    <script>
+        const hostWithVars = document.querySelector('.host-for-stylesheet-with-vars')
+        const shadowWithVars = hostWithVars.attachShadow({mode: 'open'})
+        shadowWithVars.innerHTML = "<div>hi there, i'm blue with a green background</div>"
+
+        const shadowSheetWithVars = new CSSStyleSheet();
+        shadowSheetWithVars.replaceSync(':host {background: yellow; --primary: lime;} div { color: blue; background: var(--primary); } span { background: green;}');
+        shadowWithVars.adoptedStyleSheets = [shadowSheetWithVars]
+    </script>
+
+</body>
+</html>
