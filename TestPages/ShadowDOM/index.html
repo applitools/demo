@@ -1,0 +1,24 @@
+<html>
+<head/>
+<body>
+<div>
+	<p> Shadow DOM Test </p>
+	<div name="div1"> 
+	</div>
+</div>
+<script>
+	const el = document.createElement('div');
+	const shadowRoot = el.attachShadow({mode: 'open'});
+	shadowRoot.innerHTML = '<div><h1> Just some text</h1></div>' 
+	document.querySelector('body > div > div').append(el)
+
+	const el1 = document.createElement('div');
+	const shadowRoot1 = el1.attachShadow({mode: 'open'});
+		shadowRoot1.innerHTML = `<div> <ul>1</ul>
+			<ul>2</ul>
+			<ul>3</ul>
+		</div>`
+	document.querySelector('body > div > div > div').shadowRoot.querySelector('div').append(el1);
+</script>
+</body>
+<html>
