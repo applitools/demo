@@ -3,14 +3,13 @@
 <body>
 <div>
 	<p> Shadow DOM Test </p>
-	<div name="div1"> 
+	<div id="has-shadow-root"> 
 	</div>
 </div>
 <script>
-	const el = document.createElement('div');
+	const el = document.getElementById('has-shadow-root');
 	const shadowRoot = el.attachShadow({mode: 'open'});
-	shadowRoot.innerHTML = '<div><h1> Just some text</h1></div>' 
-	document.querySelector('body > div > div').append(el)
+	shadowRoot.innerHTML = '<div id="has-shadow-root-nested"><h1> Just some text</h1></div>' 
 
 	const el1 = document.createElement('div');
 	const shadowRoot1 = el1.attachShadow({mode: 'open'});
@@ -18,7 +17,7 @@
 			<ul>2</ul>
 			<ul>3</ul>
 		</div>`
-	document.querySelector('body > div > div > div').shadowRoot.querySelector('div').append(el1);
+	el.shadowRoot.getElementById('has-shadow-root-nested').append(el1);
 </script>
 </body>
 <html>
