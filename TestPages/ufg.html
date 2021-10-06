@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <div id="content" style="background: linear-gradient(135deg, rgba(255,0,59,1) 0%, rgba(229,0,255,1) 25%, rgba(87,0,255,1) 43%, rgba(0,108,224,1) 56%, rgba(0,168,183,1) 75%, rgba(0,255,19,1) 100%);border: 2px black solid;color: white;">This is a stretchy content</div>
+        <script>
+            var container = document.querySelector('#content')
+            var queries = decodeURIComponent(window.location.search).substr(1).split('&')
+
+            var height, width
+            queries.forEach(function(query) {
+                var brokenQuery = query.split('=')
+                if (brokenQuery[0] === 'height') {
+                    height = brokenQuery[1]
+                } else if (brokenQuery[0] === 'width') {
+                    width = brokenQuery[1]
+                }
+            })
+
+            content.style.width = width + 'px'
+            content.style.height = height + 'px'
+        </script>
+    </body>
+</html>
+
+<script>window.applitoolsRgRenderInfo={"renderId":"dummy-render-id","namespace":"dummy-ns"}</script>
+<meta id="x-applitools-ufg-render-info" content="{&quot;renderId&quot;:&quot;dummy-render-id&quot;,&quot;namespace&quot;:&quot;dummy-ns&quot;}">
