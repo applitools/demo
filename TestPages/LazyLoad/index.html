@@ -17,14 +17,30 @@
 </style>
 <body>
   <h1>lazy load test page</h1>
-  <div><img loading="lazy" height="340" src="https://upload.wikimedia.org/wikipedia/commons/8/8d/President_Barack_Obama.jpg"></div>
+  <div><img class="lazy" height="340" data-src="https://upload.wikimedia.org/wikipedia/commons/8/8d/President_Barack_Obama.jpg"></div>
   <div class="separator"></div>
-  <div><img loading="lazy" height="340" src="https://upload.wikimedia.org/wikipedia/commons/d/d4/George-W-Bush.jpeg"></div>
+  <div><img class="lazy" height="340" data-src="https://upload.wikimedia.org/wikipedia/commons/d/d4/George-W-Bush.jpeg"></div>
   <div class="separator"></div>
-  <div><img loading="lazy" height="340" src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Bill_Clinton.jpg"></div>
+  <div><img class="lazy" height="340" data-src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Bill_Clinton.jpg"></div>
   <div class="separator"></div>
-  <div><img loading="lazy" height="340" src="https://upload.wikimedia.org/wikipedia/commons/9/90/George_H._W._Bush%2C_President_of_the_United_States%2C_1989_official_portrait_%28cropped%29.jpg"></div>
+  <div><img class="lazy" height="340" data-src="https://upload.wikimedia.org/wikipedia/commons/9/90/George_H._W._Bush%2C_President_of_the_United_States%2C_1989_official_portrait_%28cropped%29.jpg"></div>
   <div class="separator"></div>
-  <div><img loading="lazy" height="340" src="https://upload.wikimedia.org/wikipedia/commons/1/16/Official_Portrait_of_President_Reagan_1981.jpg"></div>
+  <div><img class="lazy" height="340" data-src="https://upload.wikimedia.org/wikipedia/commons/1/16/Official_Portrait_of_President_Reagan_1981.jpg"></div>
 </body>
 </html>
+<script>
+  const lazyImgs = document.querySelectorAll(".lazy")
+  const lazyImgObserver = new IntersectionObserver(function(entries, observer) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        const lazyImg = entry.target
+        lazyImg.src = lazyImg.dataset.src
+        lazyImg.classList.remove("lazy")
+        lazyImageObserver.unobserve(lazyImg)
+      }
+    })
+  })
+  lazyImgs.forEach(function(lazyImg) {
+    lazyImgObserver.observe(lazyImg)
+  })
+</script>
