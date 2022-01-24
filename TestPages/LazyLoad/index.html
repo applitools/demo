@@ -36,7 +36,7 @@
         const lazyImg = entry.target
         lazyImg.src = lazyImg.dataset.src
         lazyImg.classList.remove("lazy")
-        lazyImageObserver.unobserve(lazyImg)
+        lazyImgObserver.unobserve(lazyImg)
       }
     })
   })
