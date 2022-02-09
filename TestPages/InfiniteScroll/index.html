@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body></body>
+<script>
+  // adapted from https://stackoverflow.com/a/57681325
+  const startingHeight = 3000
+  const target = document.querySelector('body')
+  target.style.height = startingHeight + 'px'
+
+  window.addEventListener('scroll', function() {
+    let height = startingHeight
+    return function() {
+      if(height - window.scrollY < startingHeight) {
+        height += height / 2
+      }
+      target.style.height = height + 'px'
+    }
+}())
+</script>
+</html>
