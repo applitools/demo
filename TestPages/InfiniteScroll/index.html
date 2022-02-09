@@ -8,14 +8,17 @@
   const target = document.querySelector('body')
   target.style.height = startingHeight + 'px'
 
-  window.addEventListener('scroll', function() {
+  function addContent() {
     let height = startingHeight
-    return function() {
-      if(height - window.scrollY < startingHeight) {
-        height += height / 2
-      }
-      target.style.height = height + 'px'
+    if(height - window.scrollY < startingHeight) {
+      height += window.scrollY
     }
-}())
+    target.style.height = height + 'px'
+  }
+
+  if (window.addEventListener)
+    window.addEventListener('scroll', addContent, false)
+  else if (window.attachEvent)
+    window.attachEvent('scroll', addContent)
 </script>
 </html>
