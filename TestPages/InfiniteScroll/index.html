@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head></head>
-<body></body>
-<script>
-  // adapted from https://stackoverflow.com/a/57681325
-  const startingHeight = 3000
-  const target = document.querySelector('body')
-  target.style.height = startingHeight + 'px'
+<body>
+  <script>
+    // adapted from https://stackoverflow.com/a/57681325
+    const startingHeight = 3000
+    const target = document.querySelector('body')
+    target.style.height = startingHeight + 'px'
 
-  function addContent() {
-    const scrollHeight = window.scrollY || window.pageYOffset
-    if(startingHeight - scrollHeight < startingHeight) {
-      target.style.height = startingHeight + scrollHeight + 'px'
+    function addContent() {
+      const scrollHeight = window.scrollY || window.pageYOffset
+      if(startingHeight - scrollHeight < startingHeight) {
+        target.style.height = startingHeight + scrollHeight + 'px'
+      }
     }
-  }
 
-  window.addEventListener('scroll', addContent, false)
-</script>
+    window.addEventListener('scroll', addContent, false)
+  </script>
+</body>
 </html>
