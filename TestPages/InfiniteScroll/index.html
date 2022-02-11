@@ -9,16 +9,12 @@
   target.style.height = startingHeight + 'px'
 
   function addContent() {
-    let height = startingHeight
-    if(height - window.scrollY < startingHeight) {
-      height += window.scrollY
+    const scrollHeight = window.scrollY || window.pageYOffset
+    if(startingHeight - scrollHeight < startingHeight) {
+      target.style.height = startingHeight + scrollHeight + 'px'
     }
-    target.style.height = height + 'px'
   }
 
-  if (window.addEventListener)
-    window.addEventListener('scroll', addContent, false)
-  else if (window.attachEvent)
-    window.attachEvent('scroll', addContent)
+  window.addEventListener('scroll', addContent, false)
 </script>
 </html>
