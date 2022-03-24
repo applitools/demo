@@ -1,19 +1,26 @@
 <html>
 	<body>
-		<p>Testing waitBeforeCapture </p>
+		<p>Testing waitBeforeCapture <span id="counter">0</span></p>
 		<script>
+			var timer = 0;
 			function attachElement(){
 				setTimeout(() => {
 					// adding the image only once
 					if(document.getElementById('my_image'))
 						return
-					const newImage = document.createElement('img');
-					newImage.setAttribute("id", "my_image");
-					newImage.src = './smurfs.jpg'
-					document.querySelector('body').appendChild(newImage);
-				}, 3000)
+					if(timer < 3){
+						timer+=0.5;
+						document.getElementById('counter').innerText = timer;
+						attachElement()
+					}else{
+						const newImage = document.createElement('img');
+						newImage.setAttribute("id", "my_image");
+						newImage.src = './smurfs.jpg'
+						document.querySelector('body').appendChild(newImage);
+					}	
+				}, 500)
 			}
-			window.addEventListener('load', attachElement)
+			attachElement()
 		</script>	
 	</body>
 </html>
