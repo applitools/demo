@@ -1,0 +1,24 @@
+<html>
+	<body>
+		<p>Testing waitBeforeCapture (wait: <span id='wait'></span>)</p>
+		<script>
+			const params = new Proxy(new URLSearchParams(window.location.search), {
+				get: (searchParams, prop) => searchParams.get(prop),
+			});
+			const wait = parseInt(params.wait || '1000'); 
+			function attachElement(){
+				document.getElementById('wait').innerText = wait;
+				setTimeout(() => {
+					// adding the image only once
+					if(document.getElementById('my_image'))
+						return
+					const newImage = document.createElement('img');
+					newImage.setAttribute('id', 'my_image');
+					newImage.src = './smurfs.jpg'
+					document.querySelector('body').appendChild(newImage);
+				}, wait)
+			}
+			attachElement()
+		</script>	
+	</body>
+</html>
