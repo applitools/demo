@@ -51,6 +51,7 @@
       <div class="size-info">Inner Width: <span id="innerWidth"></span> | Inner Height: <span id="innerHeight"></span></div>
       <div class="size-info">Scroll Width: <span id="scrollWidth"></span> | Scroll Height: <span id="scrollHeight"></span></div>
       <div class="size-info">Client Width: <span id="clientWidth"></span> | Client Height: <span id="clientHeight"></span></div>
+      <h2 id="resize-alert"></h2>
     </div>
   </div>
   <div id="page" style="height:200vh; background: yellowgreen;">
@@ -85,7 +86,10 @@
       cH.innerHTML = document.documentElement.clientHeight + " px";
     }
     updateData();
-    window.addEventListener("resize", updateData);
+    window.addEventListener("resize", () => {
+      document.getElementById("resize-alert").textContent = "resize was triggered"
+      updateData()
+    });
   </script>
 </body>
 
