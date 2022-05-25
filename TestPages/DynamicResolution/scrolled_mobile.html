@@ -84,6 +84,7 @@
       cW.innerHTML = document.documentElement.clientWidth + " px";
       cH.innerHTML = document.documentElement.clientHeight + " px";
     }
+    updateData();
     function resizeAlert(){
       if(!document.getElementById('redizeAlert')){
         updateData()
@@ -94,8 +95,8 @@
         element.appendChild(p);
       }
     }
-    updateData();
-    window.addEventListener("resize", redizeAlert);
+
+    window.addEventListener("resize", resizeAlert);
   </script>
 </body>
 
