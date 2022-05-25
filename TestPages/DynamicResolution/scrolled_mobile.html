@@ -84,8 +84,18 @@
       cW.innerHTML = document.documentElement.clientWidth + " px";
       cH.innerHTML = document.documentElement.clientHeight + " px";
     }
+    function redizeAlert(){
+      if(!document.getElementById('redizeAlert')){
+        updateData()
+        var p = document.createElement("p");
+        p.innerText = "resize was triggered"
+        p.id = "redizeAlert"
+        var element = document.getElementById("ios");
+        element.appendChild(p);
+      }
+    }
     updateData();
-    window.addEventListener("resize", updateData);
+    window.addEventListener("resize", redizeAlert);
   </script>
 </body>
 
