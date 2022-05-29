@@ -1,0 +1,74 @@
+@import url('style1.css');
+body {
+  font-family: 'Roboto', sans-serif;
+}
+/* font-face */
+@font-face {
+  font-family: "GeneralFoundicons";
+  src: url("../fonts/general_foundicons.eot");
+  src: url("../fonts/general_foundicons.eot?#iefix") format("embedded-opentype"), url("../fonts/general_foundicons.woff") format("woff"), url("../fonts/general_foundicons.ttf") format("truetype"), url("../fonts/general_foundicons.svg#GeneralFoundicons") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* global foundicon styles */
+[class*="foundicon-"] {
+  display: inline;
+  width: auto;
+  height: auto;
+  line-height: inherit;
+  vertical-align: baseline;
+  background-image: none;
+  background-position: 0 0;
+  background-repeat: repeat;
+}
+
+[class*="foundicon-"]:before {
+  font-family: "GeneralFoundicons";
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: inherit;
+}
+
+/* icons */
+.foundicon-settings:before {
+  content: "\f000";
+}
+
+.foundicon-heart:before {
+  content: "\f001";
+}
+
+.foundicon-star:before {
+  content: "\f002";
+}
+.star-after:after{
+  display: block;
+  content: 'star';
+  font-weight: normal;
+}
+.pseudo-after{
+  display:inline-block;
+}
+.pseudo-after:after{
+  content: 'this is after content'
+}
+
+.red{
+  color: red;
+}
+.orange{
+  color: orange;
+}
+.with-none-as-content:before{
+  content: 'none';
+}
+p {
+  color: red;
+  display: block;
+  border: 1px solid blue;
+}
+div{
+  border-bottom: 1px solid lightgray;
+  padding: 5px 0;
+}
