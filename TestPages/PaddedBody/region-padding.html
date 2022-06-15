@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+  <title>Region Padding is cool</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto" rel="stylesheet">
+  <style>
+    body, *{
+      line-height: 19px;
+    }
+    h1{
+      font-family: 'Roboto', sans-serif;
+    }
+    .region{
+      margin:40px auto;
+      width: 75%;
+      position: relative;
+      
+    }
+    .region > div{
+      position: relative;
+      min-height: 50px;
+      padding: 10px;
+      background-color: rgba(153, 205, 50, 0.356);
+      outline:1px solid rgba(128, 128, 128, 0.562);
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      text-align:left;
+    }
+    .region:before{
+      content: '';
+      position: absolute;
+      left: -20px;
+      right: -20px;
+      top: -20px;
+      bottom: -20px;
+      outline:1px dashed rgba(128, 128, 128, 0.562);
+    }
+    .region:after{
+      content: '';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      bottom: -20px;
+      left: -20px;
+      outline:1px dashed red;
+    }
+    .region > div:after{
+      content: attr(data-region);
+      font-family: 'Roboto', sans-serif;
+      color: gray;
+      font-weight: bold;
+      font-size: 16px;
+      position: absolute;
+      transform-origin: 0 0;
+      -webkit-transform: rotate(-90deg) translateX(-100%) translateY(-100%);
+      -moz-transform: rotate(-90deg) translateX(-100%) translateY(-100%);
+      -ms-transform: rotate(-90deg) translateX(-100%) translateY(-100%);
+      -o-transform: rotate(-90deg) translateX(-100%) translateY(-100%);
+      transform: rotate(-90deg) translateX(-100%) translateY(-100%);
+      left: -30px;
+      top: -20px;
+    }
+    #layoutRegions:after{
+      bottom: 0;
+      left: 0;
+    }
+    #contentRegions:after{
+      top: 0;
+      bottom: 0;
+    }
+    #strictRegions:after{
+      top: 0;
+      right: 0;
+      left: 0;
+    }
+    #main{
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Region padding <small>(follow the <span style="color: red;">red</span> bricks)</small></h1>
+  <div id="main">
+    <div id="ignoreRegions" class="region">
+      <div data-region="ignoreRegions">
+        <code>ignoreRegions: [{region:'#ignoreRegions', padding:20}]</code>
+      </div>
+    </div>
+    <div id="layoutRegions" class="region">
+      <div data-region="layoutRegions">
+        <code>layoutRegions: [{selector:'#layoutRegions', padding:{top:20, right:20} }]</code>
+      </div>
+    </div>
+    <div id="contentRegions" class="region">
+      <div data-region="contentRegions">
+        <code>contentRegions: [{selector:'#contentRegions', padding:{left:20, right:20} }]</code>
+      </div>
+    </div>
+    <div id="strictRegions" class="region">
+      <div style="background-color: white;" data-region="strictRegions">
+        <code>strictRegions: [{region:'#strictRegions', padding:{bottom:20} }]</code>
+        <img class="minions" src="./minions-300x188.jpg" />
+      </div>
+    </div>
+  </div>
+  <br/><br/>
+</body>
+</html>
