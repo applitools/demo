@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+  <title>Side navigation and Header SDK test</title>
+  <script>
+    // this page is a result of the workaround solution for:
+    // https://trello.com/c/da7PO7WX/1423-extramarks-not-able-to-take-full-page-screenshot
+    // on this page the scrolling element is the iframe and for UFG we need to manipulate the HTML
+    // so scrolling the page will scroll everything and not just the iframe content 
+    // The original workaround was more complex since the iframe height was set and locked by css '@media' query (cannot override by style, even with '!important')
+    // it was by injecting a new 'style' tag to page 'head'
+    // The BCS-hook for THIS page uses the same logic although it not necessary (the iframe height property might be manipulated directly) 
+    // Here's an example of the BCS-hook and usage as 'generic coverage test'
+    // Note that on this case, 'eyes.check' should be triggered multiple times while 'region' y and height values should be increased 
+    /* 
+        const hook = `const _css_ = '.frame{overflow:visible} .frame iframe{height:21168px !important;overflow:visible;}';` +
+                `const _head_ = document.getElementsByTagName('head')[0];`+
+                `const _s_ = document.createElement('style'); _s_.setAttribute('type', 'text/css');`+
+                `if(_s_.styleSheet){_s_.styleSheet.cssText = _css_;}else{_s_.appendChild(document.createTextNode(_css_));};`+
+                `_head_.appendChild(_s_);`;
+
+        await eyes.check({
+          hooks: {
+            beforeCaptureScreenshot: hook,
+          },
+          region: {x: 0, y: 0, width: 1280, height: 10000},
+          isFully: true,
+          fully: true,
+        })
+      */
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto" rel="stylesheet">
+  <link rel="stylesheet" href="../css/reset.css">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <style>
+     * { box-sizing: border-box; }
+    html{
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      height: 100%;
+      min-height: 100%;
+    }
+
+    .header {
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+      background: lightgreen;
+    }
+    .content{
+      width: 100%;
+      height: calc(100% - 50px);
+      min-height: calc(100% - 50px);
+      display: flex;
+      flex-direction: row;
+    }
+    .nav{
+      padding: 5px;
+      width: 100px;
+      background: lightblue;
+    }
+    .frame{
+      width: calc(100% - 100px);
+      height: 100%;
+      overflow:hidden;
+    }
+    ul{
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li{
+      padding: 5px;
+      border-bottom: 1px solid gray;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">header</div>
+  <div class="content">
+    <div class="nav">
+      <ul>
+        <li>nav 1</li>
+        <li>nav 2</li>
+        <li>nav 3</li>
+        <li>nav 4</li>
+      </ul>
+    </div>
+    <div class="frame">
+      <iframe src="./longframe.html" frameBorder="0" style="width:100%;height:100%;"></iframe>
+    </div>
+  </div>
+</body>
+
+</html>
