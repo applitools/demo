@@ -48,14 +48,14 @@
       .one:before {
         height: 30px;
         width: 2px;
-        top: -30px;
+        top: -31px;
         left: 49px;
       }
 
       .one:after {
         height: 2px;
         width: 30px;
-        left: -30px;
+        left: -31px;
         top: 49px;
       }
 
@@ -68,14 +68,14 @@
       .two:after {
         height: 40px;
         width: 2px;
-        top: -40px;
+        top: -41px;
         left: 49px;
       }
 
       .two:before {
         width: 40px;
         height: 2px;
-        left: -40px;
+        left: -41px;
         top: 49px;
       }
 
@@ -88,20 +88,20 @@
       .three:after {
         height: 50px;
         width: 2px;
-        top: -50px;
+        top: -51px;
         left: 29px;
       }
 
       .three:before {
         width: 50px;
         height: 2px;
-        left: -50px;
+        left: -51px;
         top: 19px;
       }
 
       .row {
         display: flex;
-        flex-flow:wrap;
+        flex-flow: wrap;
       }
     </style>
   </head>
@@ -116,7 +116,7 @@
     <div class="row">
       <div class="region two">two</div>
       <div class="region two">two</div>
-      <div class="region two">two</div>
+      <my-region class="region two">two</my-region>
     </div>
     <div class="row">
       <div class="region three">three</div>
@@ -134,5 +134,53 @@
       <div class="region three">three</div>
       <div class="region three">three</div>
     </div>
+    <script>
+      customElements.define('my-region',
+        class extends HTMLElement {
+          constructor() {
+            super();
+            const shadowRoot = this.attachShadow({mode: 'open'})
+            const style = document.createElement('style');
+            const div = document.createElement('div');
+            div.classList.add('inner-region')
+            div.textContent = this.textContent
+            shadowRoot.appendChild(style);
+            shadowRoot.appendChild(div);
+
+            style.textContent = `
+              .inner-region {
+                border: 1px solid black;
+                box-sizing: border-box;
+                position: relative;
+                margin: 20px 0 0 20px;
+                width: 100px;
+                height: 100px;
+              }
+              .inner-region::before, .inner-region::after {
+                content: '20';
+                background: blue;
+                color: blue;
+                display: block;
+                position: absolute;
+                text-indent: 3px;
+              }
+              .inner-region::before {
+                height: 20px;
+                width: 2px;
+                top: -21px;
+                left: 28px;
+              }
+
+              .inner-region::after {
+                height: 2px;
+                width: 20px;
+                left: -21px;
+                top: 28px;
+              }
+            `;
+          }
+        }
+      );
+    </script>
   </body>
 </html>
