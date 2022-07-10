@@ -1,226 +1,241 @@
-<style>
-  html {
-    font-family: sans-serif;
-    line-height: 24px;
-  }
-  ul {
-    padding: 0;
-    margin: 0;
-  }
-  li {
-    list-style: none;
-    width: 100%;
-    padding: 3px 0;
-    line-height: 24px;
-    cursor: default;
-  }
-  span {
-    display: inline-block;
-    vertical-align: top;
-    min-height: 24px;
-  }
-  svg {
-    margin: -2px 5px 0 0;
-  }
-  svg.file {
-    margin: 1px 5px 0 7px;
-  }
-  .root svg.file {
-    margin: 1px 5px 0 0;
-  }
-  span.directory {
-    width: 20px;
-  }
-</style>
-<h1>
-  Test Pages
-</h1>
-<script src="../scripts/lodash.min.js"></script>
-<script>
-  const urlPrefix = 'https://applitools.github.io/demo/TestPages/'
-  const folderIcon = `<svg fill="#000000" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24px" height="24px"><path d="M 4 4 C 2.9057453 4 2 4.9057453 2 6 L 2 18 C 2 19.094255 2.9057453 20 4 20 L 20 20 C 21.094255 20 22 19.094255 22 18 L 22 8 C 22 6.9057453 21.094255 6 20 6 L 12 6 L 10 4 L 4 4 z M 4 6 L 9.171875 6 L 11.171875 8 L 20 8 L 20 18 L 4 18 L 4 6 z" /></svg>`
-  const fileIcon = `<svg version="1.1" class='file' xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="3px"
-	 viewBox="0 0 53 53" width="24px" height="20px" style="enable-background:new 0 0 53 53;" xml:space="preserve"><g><path d="M45.707,10.075l-9.794-9.783C35.725,0.105,35.471,0,35.206,0H8C7.448,0,7,0.448,7,1v51c0,0.552,0.448,1,1,1h37
-		c0.552,0,1-0.448,1-1V10.783C46,10.517,45.895,10.263,45.707,10.075z M42.586,10H36V3.414L42.586,10z M9,51V2h25v9
-		c0,0.552,0.448,1,1,1h9v39H9z"/></g></svg>`
-  window.onload = function () {
-    const files = [
-      "AdoptedStyleSheets/index.html",
-      "AngularPage/index.html",
-      "CodedRegionPage/index.html",
-      "CookiesTestPage/frame1.html",
-      "CookiesTestPage/index.html",
-      "CookiesTestPage/subdir/frame2.html",
-      "CorsCssTestPage/index.html",
-      "CorsTestPage/frame2.html",
-      "CorsTestPage/frame3.html",
-      "CorsTestPage/index.html",
-      "CounterPage/index.html",
-      "DomTest/dom_capture.html",
-      "DomTest/dom_capture_2.html",
-      "DomTest/dom_capture_3.html",
-      "DomTest/dom_capture_pseudo.html",
-      "DomTest/frame.html",
-      "DomTest/shadow_dom.html",
-      "DynamicResolution/desktop.html",
-      "DynamicResolution/mobile.html",
-      "DynamicResolution/scrolled_mobile.html",
-      "ErrorPage/index.html",
-      "fixed-position.html",
-      "FractionalMetrics/index.html",
-      "FramesAndRegionsPage/frame-aside.html",
-      "FramesAndRegionsPage/frame-comb.html",
-      "FramesAndRegionsPage/frame-image.html",
-      "FramesAndRegionsPage/frame-main.html",
-      "FramesAndRegionsPage/frame-text.html",
-      "FramesAndRegionsPage/index.html",
-      "FramesTestPage/frame2.html",
-      "FramesTestPage/frame3.html",
-      "FramesTestPage/index.html",
-      "FramesTestPage/longframe.html",
-      "FramesTestPage/withSideNavAndHeader.html",
-      "GoogleFonts/index.html",
-      "horizontal-scroll.html",
-      "index.html",
-      "InfiniteScroll/index.html",
-      "JsLayout/index.html",
-      "LazyLoad/index.html",
-      "LongPage/index.html",
-      "MinionsTestPage/index.html",
-      "MobileDemo/AccessPayments/index.html",
-      "MobileDemo/adaptive.html",
-      "ModalsPage/index.html",
-      "OCRPage/index.html",
-      "OutOfViewport/index.html",
-      "OutOfViewport/list.html",
-      "OverflowingElementWithoutOverflowAttribute/index.html",
-      "PaddedBody/index.html",
-      "PaddedBody/region-padding.html",
-      "PageWithBurgerMenu/index.html",
-      "PageWithFrameHiddenByBar/frame.html",
-      "PageWithFrameHiddenByBar/index.html",
-      "PageWithHeader/index.html",
-      "PageWithScrollableArea/index.html",
-      "PageWithScrollableArea/index2.html",
-      "PopupTestPage/index.html",
-      "RandomizePage/index.html",
-      "RefreshDomPage/auto-refresh.html",
-      "RefreshDomPage/iframe.html",
-      "RefreshDomPage/index.html",
-      "RegionOutOfViewport/index.html",
-      "ScrollableBodyWithFields/index.html",
-      "ScrollableBodyWithFields/index2.html",
-      "ScrollingElement/body.html",
-      "ScrollingElement/html.html",
-      "ShadowDOM/index.html",
-      "SimpleTestPage/index.html",
-      "SimpleTestPage/modal_scrollable.html",
-      "SimpleTestPage/scrollablebody.html",
-      "SnippetsTestPage/frame.html",
-      "SnippetsTestPage/index.html",
-      "SpecialCases/element_bigger_than_html.html",
-      "SpecialCases/everchanging.html",
-      "SpecialCases/hero.html",
-      "SpecialCases/neverchanging.html",
-      "SpecialCases/PageWithEmptyResource.html",
-      "SpecialCases/payment_details.html",
-      "SpecialCharacters/index.html",
-      "StickyHeaderWithRegions/index.html",
-      "TestBodyGreaterThanHtml/index.html",
-      "ufg.html",
-      "VisualGridTestPage/bad_resources.html",
-      "VisualGridTestPage/canvastest.html",
-      "VisualGridTestPage/duplicates.html",
-      "VisualGridTestPage/duplicates2.html",
-      "VisualGridTestPage/frame.html",
-      "VisualGridTestPage/iframeWithJavascriptSrc.html",
-      "VisualGridTestPage/index.html",
-      "VisualGridTestPage/svgtest.html",
-      "VisualGridTestPageWithRelativeBGImage/canvastest.html",
-      "VisualGridTestPageWithRelativeBGImage/duplicates.html",
-      "VisualGridTestPageWithRelativeBGImage/duplicates2.html",
-      "VisualGridTestPageWithRelativeBGImage/frame.html",
-      "VisualGridTestPageWithRelativeBGImage/iframeWithJavascriptSrc.html",
-      "VisualGridTestPageWithRelativeBGImage/index.html",
-      "VisualGridTestPageWithRelativeBGImage/inline_frame.html",
-      "VisualGridTestPageWithRelativeBGImage/svgtest.html",
-      "waitBeforeCapture/dynamicDelay.html",
-      "waitBeforeCapture/index.html",
-      "waitBeforeCapture/smallViewportSize.html",
-      "WixLikeTestPage/frame2.html",
-      "WixLikeTestPage/index.html"
-    ];
-    const d = document;
-    const ul = d.createElement('ul');
-    const rootFiles = [];
-    files.reduce((ulElements, file) => {
-      const pathArray = file.split('/');
-      const directory = _.initial(pathArray)
-      if (_.size(directory) && !ulElements[directory.join('/')]) {
-        const directoryEl = d.createElement('li');
-        ulElements[directory.join('/')] = true;
-        _.map(_.range(directory.length), rec => {
-          const cellEl = d.createElement('span');
-          if (_.size(directory) > 1 && rec < _.size(directory) - 1) {
-            cellEl.classList.add('directory')
-            //console.log('>>> directory', directory[rec], rec, _.size(directory))
-            cellEl.appendChild(d.createTextNode(' '));
-          } else {
-            const icon = d.createElement('span');
-            icon.innerHTML = folderIcon
-            cellEl.appendChild(icon);
-            cellEl.appendChild(d.createTextNode(directory[rec]));
-          }
-          directoryEl.appendChild(cellEl)
-        })
-        ul.appendChild(directoryEl)
+<!DOCTYPE html>
+<HTML lang="en">
+  <head>
+    <style>
+      * { box-sizing: border-box; }
+      html {
+        font-family: sans-serif;
+        line-height: 24px;
       }
-      if (_.size(pathArray) === 1) {
-        rootFiles.push(pathArray)
-      } else {
-        const rowEl = d.createElement('li');
-        let pathToFile = '';
-        _.map(_.range(_.size(pathArray)), rec => {
-          const cellEl = d.createElement('span');
-          const isDirectoryCell = rec < _.size(pathArray) - 1
-          if (isDirectoryCell) {
-            cellEl.classList.add('directory')
-            cellEl.appendChild(d.createTextNode(' '));
-            pathToFile += `${pathArray[rec]}/`
-          } else {
+    
+      ul {
+        padding: 0 0 24px 24px;
+        margin: 0;
+      }
+    
+      li {
+        list-style: none;
+        width: 100%;
+        padding: 3px 0;
+        line-height: 24px;
+        cursor: default;
+      }
+    
+      span {
+        display: inline-block;
+        vertical-align: top;
+        height: 24px;
+      }
+    
+      svg {
+        margin: -2px 5px 0 4px;
+      }
+    
+      svg.file {
+        margin: 1px 5px 0 4px;
+      }
+    
+      .root svg.file {
+        margin: 1px 5px 0 0;
+      }
+    
+      span.directory {
+        width: 24px;
+      }
+    </style>
+    <script src="../scripts/lodash.min.js"></script>
+    <script>
+      const urlPrefix = 'https://applitools.github.io/demo/TestPages/'
+      const folderIcon = `<svg fill="#000000" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24px" height="24px"><path d="M 4 4 C 2.9057453 4 2 4.9057453 2 6 L 2 18 C 2 19.094255 2.9057453 20 4 20 L 20 20 C 21.094255 20 22 19.094255 22 18 L 22 8 C 22 6.9057453 21.094255 6 20 6 L 12 6 L 10 4 L 4 4 z M 4 6 L 9.171875 6 L 11.171875 8 L 20 8 L 20 18 L 4 18 L 4 6 z" /></svg>`
+      const fileIcon = `<svg version="1.1" class='file' xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="3px"
+          viewBox="0 0 53 53" width="24px" height="20px" style="enable-background:new 0 0 53 53;" xml:space="preserve"><g><path d="M45.707,10.075l-9.794-9.783C35.725,0.105,35.471,0,35.206,0H8C7.448,0,7,0.448,7,1v51c0,0.552,0.448,1,1,1h37
+            c0.552,0,1-0.448,1-1V10.783C46,10.517,45.895,10.263,45.707,10.075z M42.586,10H36V3.414L42.586,10z M9,51V2h25v9
+            c0,0.552,0.448,1,1,1h9v39H9z"/></g></svg>`;
+      const files = [
+          "AdoptedStyleSheets/index.html",
+          "AngularPage/index.html",
+          "CodedRegionPage/index.html",
+          "CookiesTestPage/frame1.html",
+          "CookiesTestPage/index.html",
+          "CookiesTestPage/subdir/frame2.html",
+          "CorsCssTestPage/index.html",
+          "CorsTestPage/frame2.html",
+          "CorsTestPage/frame3.html",
+          "CorsTestPage/index.html",
+          "CounterPage/index.html",
+          "DomTest/dom_capture.html",
+          "DomTest/dom_capture_2.html",
+          "DomTest/dom_capture_3.html",
+          "DomTest/dom_capture_pseudo.html",
+          "DomTest/dom_capture_slot.html",
+          "DomTest/frame.html",
+          "DomTest/shadow_dom.html",
+          "DynamicResolution/desktop.html",
+          "DynamicResolution/mobile.html",
+          "DynamicResolution/scrolled_mobile.html",
+          "ErrorPage/index.html",
+          "fixed-position.html",
+          "FractionalMetrics/index.html",
+          "FramesAndRegionsPage/frame-aside.html",
+          "FramesAndRegionsPage/frame-comb.html",
+          "FramesAndRegionsPage/frame-image.html",
+          "FramesAndRegionsPage/frame-main.html",
+          "FramesAndRegionsPage/frame-text.html",
+          "FramesAndRegionsPage/index.html",
+          "FramesTestPage/frame2.html",
+          "FramesTestPage/frame3.html",
+          "FramesTestPage/index.html",
+          "FramesTestPage/longframe.html",
+          "FramesTestPage/withSideNavAndHeader.html",
+          "GoogleFonts/index.html",
+          "horizontal-scroll.html",
+          "index.html",
+          "InfiniteScroll/index.html",
+          "JsLayout/index.html",
+          "LazyLoad/index.html",
+          "LongPage/index.html",
+          "MinionsTestPage/index.html",
+          "MobileDemo/AccessPayments/index.html",
+          "MobileDemo/adaptive.html",
+          "ModalsPage/index.html",
+          "OCRPage/index.html",
+          "OutOfViewport/index.html",
+          "OutOfViewport/list.html",
+          "OverflowingElementWithoutOverflowAttribute/index.html",
+          "PaddedBody/index.html",
+          "PaddedBody/region-padding.html",
+          "PageWithBurgerMenu/index.html",
+          "PageWithFrameHiddenByBar/frame.html",
+          "PageWithFrameHiddenByBar/index.html",
+          "PageWithHeader/index.html",
+          "PageWithScrollableArea/index.html",
+          "PageWithScrollableArea/index2.html",
+          "PopupTestPage/index.html",
+          "RandomizePage/index.html",
+          "RefreshDomPage/auto-refresh.html",
+          "RefreshDomPage/iframe.html",
+          "RefreshDomPage/index.html",
+          "RegionOutOfViewport/index.html",
+          "ScrollableBodyWithFields/index.html",
+          "ScrollableBodyWithFields/index2.html",
+          "ScrollingElement/body.html",
+          "ScrollingElement/html.html",
+          "ShadowDOM/index.html",
+          "SimpleTestPage/index.html",
+          "SimpleTestPage/modal_scrollable.html",
+          "SimpleTestPage/scrollablebody.html",
+          "SnippetsTestPage/frame.html",
+          "SnippetsTestPage/index.html",
+          "SpecialCases/element_bigger_than_html.html",
+          "SpecialCases/everchanging.html",
+          "SpecialCases/hero.html",
+          "SpecialCases/neverchanging.html",
+          "SpecialCases/PageWithEmptyResource.html",
+          "SpecialCases/payment_details.html",
+          "SpecialCharacters/index.html",
+          "StickyHeaderWithRegions/index.html",
+          "TestBodyGreaterThanHtml/index.html",
+          "ufg.html",
+          "VisualGridTestPage/bad_resources.html",
+          "VisualGridTestPage/canvastest.html",
+          "VisualGridTestPage/duplicates.html",
+          "VisualGridTestPage/duplicates2.html",
+          "VisualGridTestPage/frame.html",
+          "VisualGridTestPage/iframeWithJavascriptSrc.html",
+          "VisualGridTestPage/index.html",
+          "VisualGridTestPage/svgtest.html",
+          "VisualGridTestPageWithRelativeBGImage/canvastest.html",
+          "VisualGridTestPageWithRelativeBGImage/duplicates.html",
+          "VisualGridTestPageWithRelativeBGImage/duplicates2.html",
+          "VisualGridTestPageWithRelativeBGImage/frame.html",
+          "VisualGridTestPageWithRelativeBGImage/iframeWithJavascriptSrc.html",
+          "VisualGridTestPageWithRelativeBGImage/index.html",
+          "VisualGridTestPageWithRelativeBGImage/inline_frame.html",
+          "VisualGridTestPageWithRelativeBGImage/svgtest.html",
+          "waitBeforeCapture/dynamicDelay.html",
+          "waitBeforeCapture/index.html",
+          "waitBeforeCapture/smallViewportSize.html",
+          "WixLikeTestPage/frame2.html",
+          "WixLikeTestPage/index.html"
+      ];
+      window.onload = function () {
+          const d = document;
+          const ul = d.createElement('ul');
+          const rootFiles = [];
+          files.reduce((ulElements, file) => {
+            const pathArray = file.split('/');
+            const directory = _.initial(pathArray)
+            if (_.size(directory) && !ulElements[directory.join('/')]) {
+              const directoryEl = d.createElement('li');
+              ulElements[directory.join('/')] = true;
+              _.map(_.range(directory.length), rec => {
+                const cellEl = d.createElement('span');
+                if (_.size(directory) > 1 && rec < _.size(directory) - 1) {
+                  cellEl.classList.add('directory')
+                  //console.log('>>> directory', directory[rec], rec, _.size(directory))
+                  cellEl.appendChild(d.createTextNode(' '));
+                } else {
+                  const icon = d.createElement('span');
+                  icon.innerHTML = folderIcon
+                  cellEl.appendChild(icon);
+                  cellEl.appendChild(d.createTextNode(directory[rec]));
+                }
+                directoryEl.appendChild(cellEl)
+              })
+              ul.appendChild(directoryEl)
+            }
+            if (_.size(pathArray) === 1) {
+              rootFiles.push(pathArray)
+            } else {
+              const rowEl = d.createElement('li');
+              let pathToFile = '';
+              _.map(_.range(_.size(pathArray)), rec => {
+                const cellEl = d.createElement('span');
+                const isDirectoryCell = rec < _.size(pathArray) - 1
+                if (isDirectoryCell) {
+                  cellEl.classList.add('directory')
+                  cellEl.appendChild(d.createTextNode(' '));
+                  pathToFile += `${pathArray[rec]}/`
+                } else {
+                  const icon = d.createElement('span');
+                  icon.innerHTML = fileIcon
+                  cellEl.appendChild(icon);
+                  const a = document.createElement('a');
+                  const linkText = document.createTextNode(pathArray[rec]);
+                  a.appendChild(linkText);
+                  a.href = `${urlPrefix}${pathToFile}${pathArray[rec]}`;
+                  a.target = '_blank';
+                  cellEl.appendChild(a);
+                }
+                rowEl.appendChild(cellEl)
+              })
+              ul.appendChild(rowEl)
+            }
+
+            return ulElements
+          }, {})
+          _.map(rootFiles, file => {
+            const rowEl = d.createElement('li');
+            const cellEl = d.createElement('span');
+            cellEl.classList.add('root')
             const icon = d.createElement('span');
             icon.innerHTML = fileIcon
             cellEl.appendChild(icon);
             const a = document.createElement('a');
-            const linkText = document.createTextNode(pathArray[rec]);
+            const linkText = document.createTextNode(file);
             a.appendChild(linkText);
-            a.href = `${urlPrefix}${pathToFile}${pathArray[rec]}`;
+            a.href = `${urlPrefix}${file}`;
             a.target = '_blank';
             cellEl.appendChild(a);
-          }
-          rowEl.appendChild(cellEl)
-        })
-        ul.appendChild(rowEl)
-      }
-
-      return ulElements
-    }, {})
-    _.map(rootFiles, file => {
-      const rowEl = d.createElement('li');
-      const cellEl = d.createElement('span');
-      cellEl.classList.add('root')
-      const icon = d.createElement('span');
-      icon.innerHTML = fileIcon
-      cellEl.appendChild(icon);
-      const a = document.createElement('a');
-      const linkText = document.createTextNode(file);
-      a.appendChild(linkText);
-      a.href = `${urlPrefix}${file}`;
-      a.target = '_blank';
-      cellEl.appendChild(a);
-      rowEl.appendChild(cellEl)
-      ul.appendChild(rowEl)
-    })
-    d.body.appendChild(ul);
-  }
-</script>
+            rowEl.appendChild(cellEl)
+            ul.appendChild(rowEl)
+          })
+          d.body.appendChild(ul);
+        }
+    </script>
+  </head>
+  <body>
+    <h1>
+      Test Pages
+    </h1>
+</body>
