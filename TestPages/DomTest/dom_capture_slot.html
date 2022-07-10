@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<!-- https://github.com/mdn/web-components-examples/tree/main/simple-template -->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple template and slot</title>
+  <script>
+    customElements.define('my-paragraph',
+        class extends HTMLElement {
+          constructor() {
+            super();
+
+            const template = document.getElementById('my-paragraph');
+            const templateContent = template.content;
+
+            this.attachShadow({ mode: 'open' }).appendChild(
+              templateContent.cloneNode(true)
+            );
+          }
+        }
+      );
+  </script>
+  <style>
+      * { box-sizing: border-box; }
+      body {
+        font-family: 'Roboto', sans-serif;
+      }
+      h1{
+        margin: 10px 0;
+      }
+  </style>
+</head>
+
+<body>
+  <h1>Simple template and slot</h1>
+
+  <template id="my-paragraph">
+    <style>
+      p {
+        color: white;
+        background-color: #666;
+        padding: 5px;
+      }
+    </style>
+    <p>
+      <slot name="my-text">My default text</slot>
+    </p>
+  </template>
+
+  <my-paragraph>
+  </my-paragraph>
+
+  <my-paragraph>
+    <span slot="my-text">Let's have some different text!</span>
+  </my-paragraph>
+
+  <my-paragraph>
+    <ul slot="my-text">
+      <li>Let's have some different text!</li>
+      <li>In a list!</li>
+    </ul>
+  </my-paragraph>
+
+</body>
+
+</html>
