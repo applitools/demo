@@ -2,6 +2,7 @@
 body {
   font-family: 'Roboto', sans-serif;
 }
+* { box-sizing: border-box; }
 /* font-face */
 @font-face {
   font-family: "GeneralFoundicons";
@@ -67,6 +68,7 @@ p {
   color: red;
   display: block;
   border: 1px solid blue;
+  margin: 10px 0;
 }
 div{
   border-bottom: 1px solid lightgray;
