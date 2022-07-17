@@ -1,7 +1,4 @@
-@import url('style1.css');
-body {
-  font-family: 'Roboto', sans-serif;
-}
+body{font-size: 16px}
 * { box-sizing: border-box; }
 /* font-face */
 @font-face {
