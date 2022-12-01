@@ -135,6 +135,7 @@
       <div id="shadow-inner-child" class="b5-inner-child"></div>
     `
     const fakeShadowRoot = document.createElement('div')
+    fakeShadowRoot.id = 'fakeShadowRoot'
     fakeShadowRoot.getRootNode = () => {
       return {constructor: {name: 'fake-shadow-root'}}
     }
