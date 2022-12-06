@@ -134,12 +134,12 @@
       </style>
       <div id="shadow-inner-child" class="b5-inner-child"></div>
     `
-    const fakeShadowRoot = document.createElement('div')
-    fakeShadowRoot.id = 'fakeShadowRoot'
-    fakeShadowRoot.getRootNode = () => {
+    const fakeShadowDom = document.createElement('div')
+    fakeShadowDom.id = 'fake-shadow-dom'
+    fakeShadowDom.getRootNode = () => {
       return {constructor: {name: 'fake-shadow-root'}}
     }
-    document.body.append(fakeShadowRoot)
+    document.body.append(fakeShadowDom)
   </script>
 </body>
 </html>
