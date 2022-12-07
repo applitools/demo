@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>LazyLoad</title>
+</head>
+<style>
+  .separator {
+      height: 2000px;
+      width: 500px;
+      border: 1px solid black;
+  }
+  img {
+    height: 200px;
+    border: 1px solid black;
+  }
+  #sre {
+    height: 50vh;
+    overflow: auto;
+  }
+</style>
+<body>
+  <div id="sre">
+    <h1>lazy load test page</h1>
+    <div><img class="lazy" height="340" data-src="https://upload.wikimedia.org/wikipedia/commons/8/8d/President_Barack_Obama.jpg"></div>
+    <div class="separator"></div>
+    <div><img class="lazy" height="340" data-src="https://upload.wikimedia.org/wikipedia/commons/d/d4/George-W-Bush.jpeg"></div>
+    <div class="separator"></div>
+    <div><img class="lazy" height="340" data-src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Bill_Clinton.jpg"></div>
+    <div class="separator"></div>
+    <div><img class="lazy" height="340" data-src="https://upload.wikimedia.org/wikipedia/commons/9/90/George_H._W._Bush%2C_President_of_the_United_States%2C_1989_official_portrait_%28cropped%29.jpg"></div>
+    <div class="separator"></div>
+    <div><img class="lazy" height="340" data-src="https://upload.wikimedia.org/wikipedia/commons/1/16/Official_Portrait_of_President_Reagan_1981.jpg"></div>
+  </div>
+</body>
+</html>
+<script>
+  const lazyImgs = document.querySelectorAll(".lazy")
+  const lazyImgObserver = new IntersectionObserver(function(entries, observer) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        const lazyImg = entry.target
+        lazyImg.src = lazyImg.dataset.src
+        lazyImg.classList.remove("lazy")
+        lazyImgObserver.unobserve(lazyImg)
+      }
+    })
+  })
+  lazyImgs.forEach(function(lazyImg) {
+    lazyImgObserver.observe(lazyImg)
+  })
+</script>
