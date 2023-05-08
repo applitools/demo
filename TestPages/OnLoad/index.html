@@ -5,10 +5,11 @@
 <body>
   <div id=target>my background color changes when below 500 innerWidth</div>
 </body>
-<script>
-  window.onload = (event) => {
+<script type='text/javascript'>
+  function styleElement(_event) {
     const el = document.querySelector('#target')
     console.log(window.innerWidth)
     if (window.innerWidth < 500) el.style.backgroundColor = 'gold'
   }
+  window.onload = styleElement
 </script>
