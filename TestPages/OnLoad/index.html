@@ -1,0 +1,14 @@
+<!--
+  you can see a reference test of this page's use in 
+  https://github.com/applitools/eyes.sdk.javascript1/tree/master/js/packages/snippets/test/reloadPage.spec.js
+-->
+<body>
+  <div id=target>my background color changes when below 500 innerWidth</div>
+</body>
+<script>
+  window.addEventListener('load', (event) => {
+    const el = document.querySelector('#target')
+    console.log(window.innerWidth)
+    if (window.innerWidth < 500) el.style.backgroundColor = 'gold'
+  })
+</script>
