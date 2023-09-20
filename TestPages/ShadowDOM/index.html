@@ -19,11 +19,11 @@
 	el.shadowRoot.getElementById('has-shadow-root-nested').append(el);
 	// Create a Shadow DOM
 	const container = document.querySelector('#container');
-	const shadowRoot = container.attachShadow({ mode: 'open' });
+	const nestedShadowRoot = container.attachShadow({ mode: 'open' });
 
 	// Create and append the iframe to the Shadow DOM
 	const iframe = document.createElement('iframe');
-	shadowRoot.appendChild(iframe);
+	nestedShadowRoot.appendChild(iframe);
 
 	// Set the content of the iframe
 	iframe.src = 'https://applitools.github.io/demo/TestPages/FramesAndRegionsPage/frame-aside.html';
