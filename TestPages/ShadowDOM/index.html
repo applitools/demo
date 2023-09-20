@@ -9,26 +9,15 @@
 <script>
 	const el = document.getElementById('has-shadow-root');
 	const shadowRoot = el.attachShadow({mode: 'open'});
-	shadowRoot.innerHTML = `
-<h1>Hello I have a single iframe</h1>
-        <iframe src="iframes/frame.html" style="display: flex; width: 100%; height: 100%; flex-direction: column;"></iframe>
+	shadowRoot.innerHTML = '<div id="has-shadow-root-nested"><h1> Just some text</h1></div>' 
 
-
-
-	`
-	el.shadowRoot.getElementById('has-shadow-root-nested').append(el);
-	// Create a Shadow DOM
-	const container = document.querySelector('#container');
-	const nestedShadowRoot = container.attachShadow({ mode: 'open' });
-
-	// Create and append the iframe to the Shadow DOM
-	const iframe = document.createElement('iframe');
-	nestedShadowRoot.appendChild(iframe);
-
-	// Set the content of the iframe
-	iframe.src = 'https://applitools.github.io/demo/TestPages/FramesAndRegionsPage/frame-aside.html';
-	iframe.title = 'Example Website';
-	iframe.id = 'frame1'
+	const el1 = document.createElement('div');
+	const shadowRoot1 = el1.attachShadow({mode: 'open'});
+		shadowRoot1.innerHTML = `<div> <ul>1</ul>
+			<ul>2</ul>
+			<ul>3</ul>
+		</div>`
+	el.shadowRoot.getElementById('has-shadow-root-nested').append(el1);
 </script>
 </body>
 <html>
