@@ -1,0 +1,70 @@
+
+<html>
+  <head>
+    <title>Regions for stiching</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background-size: 10px 10px;
+        background-image:
+          linear-gradient(to right, #ddd 1px, transparent 1px),
+          linear-gradient(to bottom, #ddd 1px, transparent 1px);
+      }
+      
+      .region {
+        border: 1px solid black;
+        position: relative;
+      }
+
+      .region:before, .region:after {
+        background: red;
+        color: red;
+        display: block;
+        position: absolute;
+        text-indent: 3px;
+      }
+
+      .region:before, .region:after {
+        content: '49.4';
+      }
+
+      .region {
+        margin: 49.4px 0 0 49.4px;
+        width: 100.333px;
+        height: 1000.333px;
+      }
+
+      .region:after {
+        height: 49.4px;
+        width: 2px;
+        top: -50.4px;
+        left: 49px;
+      }
+
+      .region:before {
+        width: 49.4px;
+        height: 2px;
+        left: -50.4px;
+        top: 49px;
+      }
+
+      .row {
+        display: flex;
+        flex-flow: wrap;
+        min-width: 999.9px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="row">
+      <div class="region">hello</div>
+      <div class="region">hello</div>
+      <div class="region">hello</div>
+      <div class="region">hello</div>
+      <div class="region">hello</div>
+      <div class="region">hello</div>
+    </div>
+  </body>
+</html>

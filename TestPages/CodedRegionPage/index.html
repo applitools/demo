@@ -1,4 +1,3 @@
-
 <html>
   <head>
     <title>Coded regions page</title>
@@ -26,8 +25,7 @@
 
       .one:before, .one:after,
       .two:before, .two:after,
-      .three:before, .three:after,
-      .four:before, .four:after {
+      .three:before, .three:after {
         background: red;
         color: red;
         display: block;
@@ -45,10 +43,6 @@
 
       .three:before, .three:after {
         content: '50';
-      }
-
-      .four:before, .four:after {
-        content: '49.4';
       }
 
       .one:before {
@@ -105,30 +99,9 @@
         top: 19px;
       }
 
-      .four {
-        margin: 49.4px 0 0 49.4px;
-        width: 100.333px;
-        height: 1000.333px;
-      }
-
-      .four:after {
-        height: 49.4px;
-        width: 2px;
-        top: -50.4px;
-        left: 49px;
-      }
-
-      .four:before {
-        width: 49.4px;
-        height: 2px;
-        left: -50.4px;
-        top: 49px;
-      }
-
       .row {
         display: flex;
         flex-flow: wrap;
-        min-width: 999.9px;
       }
     </style>
   </head>
@@ -160,22 +133,6 @@
       <div class="region three">three</div>
       <div class="region three">three</div>
       <div class="region three">three</div>
-    </div>
-    <div class="row">
-      <div class="region four">four</div>
-      <div class="region four">four</div>
-      <div class="region four">four</div>
-      <div class="region four">four</div>
-      <div class="region four">four</div>
-      <div class="region four">four</div>
-    </div>
-    <div class="row">
-      <div class="region four">four</div>
-      <div class="region four">four</div>
-      <div class="region four">four</div>
-      <div class="region four">four</div>
-      <div class="region four">four</div>
-      <div class="region four">four</div>
     </div>
     <script>
       customElements.define('my-region',
