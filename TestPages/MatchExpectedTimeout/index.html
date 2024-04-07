@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Countdown Timer</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  #countdown {
+    font-size: 24px;
+    margin-top: 50px;
+  }
+</style>
+</head>
+<body>
+
+<div id="countdown">Initializing...</div>
+<p>This page helps test the <code>MatchTimeout</code> feature, which waits for images to stabilize before capturing them. It ensures consistency in screenshots during testing.</p>
+<p>
+    When <code>MatchTimeout</code> is used with a value of 3000ms or more, the captured screenshot is expected to have the text "Time's up!" displayed.
+</p>
+<script>
+  // Function to generate a random number between min and max
+  function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+  }
+
+  // Function to update the countdown
+  function updateCountdown() {
+    var currentTime = performance.now();
+    var elapsed = currentTime - startTime;
+    var remainingTime = Math.floor(Math.max(countdown - elapsed, 0));
+    var countdownElement = document.getElementById('countdown');
+    countdownElement.textContent = remainingTime + 'ms';
+    if (remainingTime > 0) {
+      requestAnimationFrame(updateCountdown);
+    } else {
+      countdownElement.textContent = 'Time\'s up!';
+    }
+  }
+
+  var countdown = getRandomNumber(500, 3000); // Initial countdown value
+  var startTime = performance.now();
+  updateCountdown();
+
+</script>
+
+</body>
+</html>
