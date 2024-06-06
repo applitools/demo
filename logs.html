@@ -10,7 +10,7 @@
     <script>var exports = {};</script>
     <script src="https://unpkg.com/@applitools/core@4.16.2/dist/troubleshoot/logs.js"></script>
     
-<div id="root"></div>
+    <div id="logsViewerApp"></div>
 
     <div class="container">
         <sidebar>
@@ -66,7 +66,7 @@
     }
 
     function process({data, filename}){
-        const logs = exports.parseLogs(data)
+        const logs = exports.parseLogs(data).split('\n').map(s=>s.replace(/^background\.js:\d+ /, '')).join('\n')
         document.getElementById('file-name').innerText = filename;
         document.getElementById('raw-logs').innerText = JSON.stringify(logs, null, 2)
         const analyzed = exports.analyzeLogs(structureLogs(logs))
@@ -106,9 +106,9 @@
 
     return isOpen ? (
         <>
-            <pre className="logs">
+            {logs ? <pre className="logs">
                 {logs.map(renderLog)}
-            </pre>
+            </pre> : "no logs"}
             <button  onClick={()=>setIsOpen(false)} title="click to collapse">
                 Close logs
             </button>
@@ -120,7 +120,7 @@
 
   const LogsContainer = ({data, name, level=0}) => {
     if(!data) return null
-    const [isOpen, setIsOpen] = React.useState(level < 3)
+    const [isOpen, setIsOpen] = React.useState(level < 2)
     const kids = Object.entries(data).map(([name, data]) => ({name, data})).filter(({data}) => data && data.startedAt)
     return (
       <div className="logs-container">
@@ -139,7 +139,7 @@
       </div>
     );
   };
-  const root = ReactDOM.createRoot(document.getElementById("root"))
+  const root = ReactDOM.createRoot(document.getElementById("logsViewerApp"))
   function startApp(data) {
     root.render(<LogsContainer data={data}/>);
   }
