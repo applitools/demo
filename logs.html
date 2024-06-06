@@ -94,6 +94,10 @@
 <script src="https://unpkg.com/@babel/standalone@7.10.3/babel.min.js" crossorigin></script>
 
 <script type="text/babel" data-presets="react,stage-3">
+
+
+  ///////////////////////////        start log drilldown view       //////////////////////////////////////////
+
   const LogLinesViewer = ({logs}) => {
     const [isOpen, setIsOpen] = React.useState(false)
 
@@ -122,9 +126,9 @@
                 Close logs
             </button>
         </>
-    ) : <button onClick={() => setIsOpen(true)}>
+    ) : logs ? <button onClick={() => setIsOpen(true)}>
         see logs
-    </button>
+    </button> : null
   }
 
   const LogsContainer = ({data, name, level=0}) => {
@@ -149,10 +153,6 @@
       </div>
     );
   };
-  const root = ReactDOM.createRoot(document.getElementById("logsViewerApp"))
-  function startApp(data) {
-    root.render(<LogsContainer data={data}/>);
-  }
 
   function addErrorNotations(obj) {
     for (let key in obj) {
@@ -165,12 +165,74 @@
             } else if (typeof obj[key] === 'string' && obj[key].includes('Error:')) {
                 obj[key].hasError = true
                 obj.hasError = true
-                debugger
             }
         }
     }
     return obj.hasError
   }
+
+  ///////////////////////////        end log drilldown view       //////////////////////////////////////////
+  ///////////////////////////        start render targets analyzer       //////////////////////////////////////////
+
+  const RenderTargetsAnalizer = ({data}) => {
+    const targets = searchObjects(data, "render-target")
+    return <div className="render-targets">{
+        targets.map(target => <div className={`render-target ${target.hasError ? "error" : ""}`}>
+            <h3>{target[0]}</h3>
+            <UploadResourceAnalizer data={target[1]}/>
+        </div>)
+    }
+    </div>;
+  }
+
+  const UploadResourceAnalizer = ({data}) => {
+    const resources = searchObjects(data, "upload-resource")
+    const [isOpen, setIsOpen] = React.useState(false);
+    
+    return (
+        <>
+            <button onClick={() => setIsOpen(!isOpen)}>
+                {isOpen ? "Collapse" : "Expand"}
+            </button>
+            {isOpen && (
+                <>
+                    Total resources: {resources.length}
+                    <div className="upload-resources">
+                        {resources.map(uploadResource => (
+                            <div
+                                className={`upload-resource ${
+                                    uploadResource.hasError ? "error" : ""
+                                }`}
+                            >
+                                <h4>{uploadResource[0]}</h4>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+        </>
+    );
+}
+
+  function searchObjects(data, needle="render-target") {
+    if(typeof data === "object") {
+        const entries = Object.entries(data)
+        if(entries.length)
+            return entries.filter(([name]) => name.includes(needle)).concat(entries.flatMap(([_, log]) => searchObjects(log, needle)))
+    }
+    return []
+  }
+  ///////////////////////////        end resources analyzer       //////////////////////////////////////////
+
+
+  const root = ReactDOM.createRoot(document.getElementById("logsViewerApp"))
+  function startApp(data) {
+    root.render(<>
+        <LogsContainer data={data}/>
+        <RenderTargetsAnalizer data={data}/>
+    </>);
+  }
+
 
 </script>
 
@@ -187,6 +249,13 @@
 }
 .error {
     border: 2px solid red;
+}
+.render-targets {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    .render-target {
+        border: 1px solid lightgray;
+    }
 }
 </style>
 
