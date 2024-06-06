@@ -66,7 +66,7 @@
     }
 
     function process({data, filename}){
-        const logs = exports.parseLogs(data).split('\n').map(s=>s.replace(/^background\.js:\d+ /, '')).join('\n')
+        const logs = exports.parseLogs(data.split('\n').map(s=>s.replace(/^background\.js:\d+ /, '')).join('\n'))
         document.getElementById('file-name').innerText = filename;
         document.getElementById('raw-logs').innerText = JSON.stringify(logs, null, 2)
         const analyzed = exports.analyzeLogs(structureLogs(logs))
