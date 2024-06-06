@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log viewer</title>
+    <link rel="stylesheet" type="text/css" href="https://noam-gaash.co.il/bio/main.css" />
+</head>
+<body>
+    <script>var exports = {};</script>
+    <script src="https://unpkg.com/@applitools/core@4.16.2/dist/troubleshoot/logs.js"></script>
+    
+<div id="root"></div>
+
+    <div class="container">
+        <sidebar>
+          <h2>Select a File</h2>
+          <div
+            id="drop-area"
+            ondrop="dropHandler(event);"
+            ondragover="dragOverHandler(event);"
+          >
+            <p>
+              Drag & drop a file here or <label for="file-input">click here</label> to
+              select a file to upload.
+            </p>
+            <input type="file" id="file-input" onchange="handleFile(this.files)" />
+          </div>
+        </sidebar>
+        <main>
+          <h1 id="file-name"></h1>
+          <hr />
+          <h2>logs</h2>
+          <pre id="raw-logs"></pre>
+          <h2>analyzed</h2>
+          <pre id="analyzed-logs"></pre>
+          <h2>structured</h2>
+          <pre id="structured-logs"></pre>
+        </main>
+    </div>
+
+    
+<script>
+    function dragOverHandler(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "copy";
+    }
+
+    function dropHandler(event) {
+        event.preventDefault();
+        const files = event.dataTransfer.files;
+        handleFile(files);
+    }
+
+    function handleFile(files) {
+        const file = files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            const contents = event.target.result;
+            const result = contents
+
+            process({ data: result, filename: file.name });
+        }
+        reader.readAsText(file);
+    }
+
+    function process({data, filename}){
+        const logs = exports.parseLogs(data)
+        document.getElementById('file-name').innerText = filename;
+        document.getElementById('raw-logs').innerText = JSON.stringify(logs, null, 2)
+        const analyzed = exports.analyzeLogs(structureLogs(logs))
+        document.getElementById('analyzed-logs').innerHTML = JSON.stringify(analyzed, null, 2)
+        const structured = exports.analyzeLogs(structureLogs(logs))
+        document.getElementById('structured-logs').innerHTML = JSON.stringify(structured, null, 2)
+        console.log(structured)
+        startApp(structured)
+    }
+
+</script>
+
+
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.10.3/babel.min.js" crossorigin></script>
+
+<script type="text/babel" data-presets="react,stage-3">
+  const LogLinesViewer = ({logs}) => {
+    const [isOpen, setIsOpen] = React.useState(false)
+
+    const renderLine = (line, index) => {
+        return (
+            <div className={"log-line"}>
+                {line}
+            </div>
+        )
+    }
+
+    const renderLog = (log, index) => {
+        return (
+            <div key={index} className={"log"}>
+                {log}
+            </div>
+        )
+    }
+
+    return isOpen ? (
+        <>
+            <pre className="logs">
+                {logs.map(renderLog)}
+            </pre>
+            <button  onClick={()=>setIsOpen(false)} title="click to collapse">
+                Close logs
+            </button>
+        </>
+    ) : <button onClick={() => setIsOpen(true)}>
+        see logs
+    </button>
+  }
+
+  const LogsContainer = ({data, name, level=0}) => {
+    if(!data) return null
+    const [isOpen, setIsOpen] = React.useState(level < 3)
+    const kids = Object.entries(data).map(([name, data]) => ({name, data})).filter(({data}) => data && data.startedAt)
+    return (
+      <div className="logs-container">
+        <ul onClick={()=>setIsOpen(!isOpen)}>
+            <h3>{name ?? "Global log level"}</h3>
+            <li className="time">time: {data.time / 1000} seconds</li>
+            <li>kids: {kids.length}</li>
+        </ul>
+        {kids.length ? isOpen ? <button onClick={()=>setIsOpen(false)}>Close</button> : <button onClick={()=>setIsOpen(true)}>Open</button> : null}
+        <LogLinesViewer logs={data.logs} />
+        <div className="kids">
+            {isOpen && kids.map(kid =>
+                <LogsContainer data={kid.data} name={kid.name} level={level+1}/>
+            )}
+        </div>
+      </div>
+    );
+  };
+  const root = ReactDOM.createRoot(document.getElementById("root"))
+  function startApp(data) {
+    root.render(<LogsContainer data={data}/>);
+  }
+</script>
+
+<style>
+.logs-container {
+    border: 1px solid pink;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+
+    .kids {
+        display: flex;
+    }
+}
+</style>
+
+</body>
+</html>
