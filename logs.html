@@ -30,11 +30,11 @@
         <main>
           <h1 id="file-name"></h1>
           <hr />
-          <h2>logs</h2>
+          <h2><label><input type="checkbox" id="logs">logs</label></h2>
           <pre id="raw-logs"></pre>
-          <h2>analyzed</h2>
+          <h2><label><input type="checkbox" id="analyzed">analyzed</label></h2>
           <pre id="analyzed-logs"></pre>
-          <h2>structured</h2>
+          <h2><label><input type="checkbox" id="structured">structured</h2>
           <pre id="structured-logs"></pre>
         </main>
     </div>
@@ -67,14 +67,23 @@
 
     function process({data, filename}){
         const logs = exports.parseLogs(data.split('\n').map(s=>s.replace(/^background\.js:\d+ /, '')).join('\n'))
-        document.getElementById('file-name').innerText = filename;
-        document.getElementById('raw-logs').innerText = JSON.stringify(logs, null, 2)
-        const analyzed = exports.analyzeLogs(structureLogs(logs))
-        document.getElementById('analyzed-logs').innerHTML = JSON.stringify(analyzed, null, 2)
         const structured = exports.analyzeLogs(structureLogs(logs))
-        document.getElementById('structured-logs').innerHTML = JSON.stringify(structured, null, 2)
+        document.getElementById('file-name').innerText = filename;
+        
+        if (document.getElementById('logs').checked) {
+            document.getElementById('raw-logs').innerText = JSON.stringify(logs, null, 2)
+        }
+        if (document.getElementById('analyzed').checked) {
+            const analyzed = exports.analyzeLogs(structureLogs(logs))
+            document.getElementById('analyzed-logs').innerHTML = JSON.stringify(analyzed, null, 2)
+        }
+        if (document.getElementById('structured').checked) {
+            document.getElementById('structured-logs').innerHTML = JSON.stringify(structured, null, 2)
+        }
         console.log(structured)
+        addErrorNotations(structured)
         startApp(structured)
+        window.structured = structured
     }
 
 </script>
@@ -122,8 +131,9 @@
     if(!data) return null
     const [isOpen, setIsOpen] = React.useState(level < 2)
     const kids = Object.entries(data).map(([name, data]) => ({name, data})).filter(({data}) => data && data.startedAt)
+
     return (
-      <div className="logs-container">
+      <div className={`logs-container${data.hasError?' error':''}`}>
         <ul onClick={()=>setIsOpen(!isOpen)}>
             <h3>{name ?? "Global log level"}</h3>
             <li className="time">time: {data.time / 1000} seconds</li>
@@ -132,8 +142,8 @@
         {kids.length ? isOpen ? <button onClick={()=>setIsOpen(false)}>Close</button> : <button onClick={()=>setIsOpen(true)}>Open</button> : null}
         <LogLinesViewer logs={data.logs} />
         <div className="kids">
-            {isOpen && kids.map(kid =>
-                <LogsContainer data={kid.data} name={kid.name} level={level+1}/>
+            {isOpen && kids.map((kid, index) =>
+                <LogsContainer data={kid.data} name={kid.name} level={level+1} key={index}/>
             )}
         </div>
       </div>
@@ -143,11 +153,30 @@
   function startApp(data) {
     root.render(<LogsContainer data={data}/>);
   }
+
+  function addErrorNotations(obj) {
+    for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+                if(addErrorNotations(obj[key])) {
+                    obj[key].hasError = true
+                    obj.hasError = true
+                }
+            } else if (typeof obj[key] === 'string' && obj[key].includes('Error:')) {
+                obj[key].hasError = true
+                obj.hasError = true
+                debugger
+            }
+        }
+    }
+    return obj.hasError
+  }
+
 </script>
 
 <style>
 .logs-container {
-    border: 1px solid pink;
+    border: 1px solid lightgray;
     margin: 10px;
     padding: 10px;
     border-radius: 10px;
@@ -155,6 +184,9 @@
     .kids {
         display: flex;
     }
+}
+.error {
+    border: 2px solid red;
 }
 </style>
 
