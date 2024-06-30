@@ -41,6 +41,9 @@
 
     
 <script>
+
+    const errorIndicators = ['Exception:', 'Error at', 'reason: Error: ', 'Error in', `failed due to an error`]
+
     function dragOverHandler(event) {
         event.preventDefault();
         event.dataTransfer.dropEffect = "copy";
@@ -162,7 +165,7 @@
                     obj[key].hasError = true
                     obj.hasError = true
                 }
-            } else if (typeof obj[key] === 'string' && obj[key].includes('Error:')) {
+            } else if (typeof obj[key] === 'string' && errorIndicators.some(indicator => obj[key].includes(indicator))) {
                 obj[key].hasError = true
                 obj.hasError = true
             }
@@ -172,17 +175,22 @@
   }
 
   ///////////////////////////        end log drilldown view       //////////////////////////////////////////
+
   ///////////////////////////        start render targets analyzer       //////////////////////////////////////////
 
   const RenderTargetsAnalizer = ({data}) => {
     const targets = searchObjects(data, "render-target")
-    return <div className="render-targets">{
-        targets.map(target => <div className={`render-target ${target.hasError ? "error" : ""}`}>
-            <h3>{target[0]}</h3>
-            <UploadResourceAnalizer data={target[1]}/>
-        </div>)
-    }
-    </div>;
+    return <>
+        <h1>Render Targets</h1>
+        <div className="render-targets">
+            {
+            targets.map(target => <div className={`render-target ${target.hasError ? "error" : ""}`}>
+                <h3>{target[0]}</h3>
+                <UploadResourceAnalizer data={target[1]}/>
+            </div>)
+        }
+        </div>
+    </>;
   }
 
   const UploadResourceAnalizer = ({data}) => {
@@ -223,13 +231,99 @@
     return []
   }
   ///////////////////////////        end resources analyzer       //////////////////////////////////////////
+  ///////////////////////////        start test list             //////////////////////////////////////////
+
+    const TestList = ({data}) => {
+        const classicTests = searchObjects(data, "eyes-classic")
+        const ufgTests = searchObjects(data, "eyes-ufg")
+        return <div className="test-list classic">
+            <h1>Test List</h1>
+            <h2> Eyes Classic Tests </h2>
+            <div className="test-container">
+                {
+                    classicTests.map(test => <div className={`test ${test.hasError ? "error" : ""}`}>
+                        <h3>{test[0]}</h3>
+                        <TestInsights data={test[1]}/>
+                    </div>)
+                }
+            </div>
+            {classicTests.length ? null : <div>
+                <h3>No Classic tests found</h3>
+            </div>}
+            <h2> Eyes UFG Tests </h2>
+            <div className="test-container">
+                {
+                    ufgTests.map(test => <div className={`test ${test.hasError ? "error" : ""}`}>
+                        <h3>{test[0]}</h3>
+                        <TestInsights data={test[1]}/>
+                    </div>)
+                }
+            </div>
+            {ufgTests.length ? null : <div>
+                <h3>No UFG tests found</h3>
+            </div>}
+        </div>;
+    }
+
+    function TestInsights({data}) {
+        const hasGetAccount = searchObjects(data, "get-account")
+        const time = data.time / 1000
+        const hasOpenEyesLog = data.logs?.filter(log => log.includes("openEyes")).length
+        const hasCheck = searchObjects(data, "check-base")
+        const hasClose = searchObjects(data, "close-base")
+        const hasGetEyesResults = searchObjects(data, "get-eyes-results")
+        
+        return <div className="test-insights">
+            <ul>
+                <li>Time: {time} seconds</li>
+                <li>Has Get Account: {hasGetAccount.length} {hasGetAccount.hasError ? <div className="error">Error in Get Account</div> : null}</li>
+                <li>Has Open Eyes Log: {hasOpenEyesLog}</li>
+                <li>Has Check: {hasCheck.length} {hasCheck.hasError ? <div className="error">Error in Check</div> : null}</li>
+                <li>Has Close: {hasClose.length} {hasClose.hasError ? <div className="error">Error in Close</div> : null}</li>
+                <li>Has Get Eyes Results: {hasGetEyesResults.length} {hasGetEyesResults.hasError ? <div className="error">Error in Get Eyes Results</div> : null}</li>
+            </ul>
+        </div>;
+    }
+
+    ///////////////////////////        end test list             //////////////////////////////////////////
+
+    ///////////////////////////     start errors list            //////////////////////////////////////////
+
+
+    function getErrorsList (obj) {
+        const errors = []
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    errors.push(...getErrorsList(obj[key]))
+                } else if (typeof obj[key] === 'string' && errorIndicators.some(indicator => obj[key].includes(indicator))) {
+                    errors.push(obj[key])
+                }
+            }
+        }
+        return errors
+    }
+
+    function ErrorsList({data}) {
+        const errors = getErrorsList(data)
+        return <div className="errors-list">
+            <h1>Errors List</h1>
+            <ul>
+                {errors.map((error, index) => <li key={index} className="error">{error}</li>)}
+            </ul>
+        </div>
+    }
+
+    ///////////////////////////     end errors list            //////////////////////////////////////////
 
 
   const root = ReactDOM.createRoot(document.getElementById("logsViewerApp"))
   function startApp(data) {
     root.render(<>
         <LogsContainer data={data}/>
+        <TestList data={data}/>
         <RenderTargetsAnalizer data={data}/>
+        <ErrorsList data={data}/>
     </>);
   }
 
@@ -254,6 +348,13 @@
     display: grid;
     grid-template-columns: auto auto auto auto;
     .render-target {
+        border: 1px solid lightgray;
+    }
+}
+.test-container {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    .test {
         border: 1px solid lightgray;
     }
 }
