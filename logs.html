@@ -308,9 +308,10 @@
         const errors = getErrorsList(data)
         return <div className="errors-list">
             <h1>Errors List</h1>
+            {errors.length ?
             <ul>
                 {errors.map((error, index) => <li key={index} className="error">{error}</li>)}
-            </ul>
+            </ul> : <h2>No errors found 🎉</h2>}
         </div>
     }
 
