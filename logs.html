@@ -42,7 +42,7 @@
     
 <script>
 
-    const errorIndicators = ['Exception:', 'Error at', 'reason: Error: ', 'Error in', `failed due to an error`]
+    const errorIndicators = ['Exception:', 'Error at', 'reason: Error: ', 'Error in', `failed due to an error`, "error during", "error in", "Error during"]
 
     function dragOverHandler(event) {
         event.preventDefault();
@@ -69,7 +69,7 @@
     }
 
     function process({data, filename}){
-        const logs = exports.parseLogs(data.split('\n').map(s=>s.replace(/^background\.js:\d+ /, '')).join('\n'))
+        const logs = exports.parseLogs(data.split('\n').map(s=>s.replace(/^background\.js:\d+ /, '').trim()).join('\n'))
         const structured = exports.analyzeLogs(structureLogs(logs))
         document.getElementById('file-name').innerText = filename;
         
