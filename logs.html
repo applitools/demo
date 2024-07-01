@@ -144,6 +144,7 @@
         <ul onClick={()=>setIsOpen(!isOpen)}>
             <h3>{name ?? "Global log level"}</h3>
             <li className="time">time: {data.time / 1000} seconds</li>
+            <li>started at: {data.startedAt ? new Date(data.startedAt).toLocaleTimeString() : "N/A"}</li>
             <li>kids: {kids.length}</li>
         </ul>
         {kids.length ? isOpen ? <button onClick={()=>setIsOpen(false)}>Close</button> : <button onClick={()=>setIsOpen(true)}>Open</button> : null}
@@ -268,6 +269,7 @@
     function TestInsights({data}) {
         const hasGetAccount = searchObjects(data, "get-account")
         const time = data.time / 1000
+        const start = data.startedAt ? new Date(data.startedAt).toLocaleTimeString() : "N/A"
         const hasOpenEyesLog = data.logs?.filter(log => log.includes("openEyes")).length
         const hasCheck = searchObjects(data, "check-base")
         const hasClose = searchObjects(data, "close-base")
@@ -276,6 +278,7 @@
         return <div className="test-insights">
             <ul>
                 <li>Time: {time} seconds</li>
+                <li>Started at: {start}</li>
                 <li>Has Get Account: {hasGetAccount.length} {hasGetAccount.hasError ? <div className="error">Error in Get Account</div> : null}</li>
                 <li>Has Open Eyes Log: {hasOpenEyesLog}</li>
                 <li>Has Check: {hasCheck.length} {hasCheck.hasError ? <div className="error">Error in Check</div> : null}</li>
