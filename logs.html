@@ -70,23 +70,23 @@
 
     function process({data, filename}){
         const logs = exports.parseLogs(data.split('\n').map(s=>s.replace(/^background\.js:\d+ /, '').trim()).join('\n'))
-        const structured = exports.analyzeLogs(structureLogs(logs))
+        const structured = structureLogs(logs)
+        const analyzed = exports.analyzeLogs(structureLogs(logs))
         document.getElementById('file-name').innerText = filename;
         
         if (document.getElementById('logs').checked) {
             document.getElementById('raw-logs').innerText = JSON.stringify(logs, null, 2)
         }
         if (document.getElementById('analyzed').checked) {
-            const analyzed = exports.analyzeLogs(structureLogs(logs))
             document.getElementById('analyzed-logs').innerHTML = JSON.stringify(analyzed, null, 2)
         }
         if (document.getElementById('structured').checked) {
             document.getElementById('structured-logs').innerHTML = JSON.stringify(structured, null, 2)
         }
-        console.log(structured)
-        addErrorNotations(structured)
-        startApp(structured)
-        window.structured = structured
+        console.log(analyzed)
+        addErrorNotations(analyzed)
+        startApp(analyzed)
+        window.analyzed = analyzed
     }
 
 </script>
@@ -270,7 +270,9 @@
         const hasGetAccount = searchObjects(data, "get-account")
         const time = data.time / 1000
         const start = data.startedAt ? new Date(data.startedAt).toLocaleTimeString() : "N/A"
-        const hasOpenEyesLog = data.logs?.filter(log => log.includes("openEyes")).length
+        const hasOpenEyesLog = data.logs?.filter(log => log.includes(`Command "openEyes" is`)).length
+        const hasBaseOpenEyesLog = searchLogs(data, `Command "openEyes" is`).length
+        const hasTakingDomSnapshotLogs = searchLogs(data, "Taking dom snapshot").length
         const hasCheck = searchObjects(data, "check-base")
         const hasClose = searchObjects(data, "close-base")
         const hasGetEyesResults = searchObjects(data, "get-eyes-results")
@@ -281,11 +283,22 @@
                 <li>Started at: {start}</li>
                 <li>Has Get Account: {hasGetAccount.length} {hasGetAccount.hasError ? <div className="error">Error in Get Account</div> : null}</li>
                 <li>Has Open Eyes Log: {hasOpenEyesLog}</li>
+                <li>Has Base Open Eyes Log: {hasBaseOpenEyesLog}</li>
+                <li>Has Taking Dom Snapshot Logs: {hasTakingDomSnapshotLogs}</li>
                 <li>Has Check: {hasCheck.length} {hasCheck.hasError ? <div className="error">Error in Check</div> : null}</li>
                 <li>Has Close: {hasClose.length} {hasClose.hasError ? <div className="error">Error in Close</div> : null}</li>
                 <li>Has Get Eyes Results: {hasGetEyesResults.length} {hasGetEyesResults.hasError ? <div className="error">Error in Get Eyes Results</div> : null}</li>
             </ul>
         </div>;
+    }
+
+    function searchLogs(data, needle) {
+        if(typeof data === "object") {
+            const entries = Object.entries(data)
+            if(entries.length)
+                return entries.filter(([name, log]) => log?.logs && log.logs.some(line => line.includes(needle))).concat(entries.flatMap(([_, log]) => searchLogs(log, needle)))
+        }
+        return []
     }
 
     ///////////////////////////        end test list             //////////////////////////////////////////
