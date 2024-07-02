@@ -185,7 +185,7 @@
         <h1>Render Targets</h1>
         <div className="render-targets">
             {
-            targets.map(target => <div className={`render-target ${target.hasError ? "error" : ""}`}>
+            targets.map(target => <div className={`render-target ${target.hasError ? "error" : ""}`} key={target[0]}>
                 <h3>{target[0]}</h3>
                 <UploadResourceAnalizer data={target[1]}/>
             </div>)
@@ -242,7 +242,7 @@
             <h2> Eyes Classic Tests </h2>
             <div className="test-container">
                 {
-                    classicTests.map(test => <div className={`test ${test.hasError ? "error" : ""}`}>
+                    classicTests.map(test => <div className={`test ${test.hasError ? "error" : ""}`} key={test[0]}>
                         <h3>{test[0]}</h3>
                         <TestInsights data={test[1]}/>
                     </div>)
@@ -254,7 +254,7 @@
             <h2> Eyes UFG Tests </h2>
             <div className="test-container">
                 {
-                    ufgTests.map(test => <div className={`test ${test.hasError ? "error" : ""}`}>
+                    ufgTests.map(test => <div className={`test ${test.hasError ? "error" : ""}`} key={test[0]}>
                         <h3>{test[0]}</h3>
                         <TestInsights data={test[1]}/>
                     </div>)
