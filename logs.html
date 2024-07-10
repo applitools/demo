@@ -333,11 +333,43 @@
 
     ///////////////////////////     end errors list            //////////////////////////////////////////
 
+    ///////////////////////////     start general log data            //////////////////////////////////////////
+
+    const LogData = ({data}) => {
+        const sdkData = eval(searchLogs(analyzed,"logEvent")[0][1].logs[0].split("with settings ")[1])[0]
+        console.log(sdkData)
+        return <div className="log-data">
+            <h1>General Information</h1>
+            <ul>
+                <li>Time: {data.time / 1000} seconds</li>
+                <li>Started at: {data.startedAt ? new Date(data.startedAt).toLocaleTimeString() : "N/A"}</li>
+                <li>SDK: 
+                    <ul>
+                        <li>SDK Name: {sdkData.event.environment.sdk?.name}</li>
+                        <li>SDK Version: {sdkData.event.environment.sdk?.currentVersion}</li>
+                        <li>SDK Latest Version: {sdkData.event.environment.sdk?.latestVersion}</li>
+                        <li>SDK Language: {sdkData.event.environment.sdk?.lang}</li>
+                        <li>Environment platform: {sdkData.event.environment.platform}</li>
+                        <li>CI: {sdkData.event.environment.ci}</li>
+                        <li>Browser: {sdkData.event.driver.browserName} {sdkData.event.driver.browserVersion}</li>
+                        <li>Concurrency: {sdkData.event.concurrency}</li>
+                        <li>RAM: {sdkData.event.environment.ram}</li>
+                        <li>Eyes server URL: {sdkData.eyesServerUrl}</li>
+                        <li>UFG server URL: {sdkData.ufgServerUrl}</li>
+                        <li>proxy: {sdkData.proxy.url} {sdkData.proxy.isHttpOnly ? "(http only)" : ""}</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    }
+
+    ///////////////////////////     end general log data            //////////////////////////////////////////
 
   const root = ReactDOM.createRoot(document.getElementById("logsViewerApp"))
   function startApp(data) {
     root.render(<>
         <LogsContainer data={data}/>
+        <LogData data={data}/>
         <TestList data={data}/>
         <RenderTargetsAnalizer data={data}/>
         <ErrorsList data={data}/>
