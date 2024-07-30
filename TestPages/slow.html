@@ -6,15 +6,21 @@
 </head>
 <body>
     <h1>Welcome to the Slow Loading Page for Testing</h1>
-    <p>This page will make multiple XHR requests sequentially with delays to slow down the load time for testing purposes.</p>
     <button>test button</button>
     
-    <img src="https://httpbin.org/delay/5" alt="" onerror="console.log('amit')">
+    <img src="https://httpbin.org/delay/30" alt="" onerror="console.log('image onerror')">
+    <p id="counter">0</p>
     <script>
+      window.interval = setInterval(() => {
+        const curr = Number(counter.textContent)
+        counter.textContent = curr + 1
+      }, 1000)
+      
       window.addEventListener('load', () => {
         document.body.appendChild(document.createTextNode('page is now loaded'))
+        // counter.textContent = 'done'
+        clearInterval(interval)
       })
     </script>
-  <!-- <p>Page is now completely loaded!</p> -->
 </body>
 </html>
