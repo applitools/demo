@@ -8,32 +8,13 @@
     <h1>Welcome to the Slow Loading Page for Testing</h1>
     <p>This page will make multiple XHR requests sequentially with delays to slow down the load time for testing purposes.</p>
     <button>test button</button>
+    
+    <img src="https://httpbin.org/delay/5" alt="" onerror="console.log('amit')">
     <script>
-        function makeRequest() {
-            return new Promise((resolve) => {
-                let xhr = new XMLHttpRequest();
-                xhr.open("GET", "https://httpbin.org/delay/3", true);
-                xhr.onload = function () {
-                    if (xhr.status === 200) {
-                        resolve(xhr.responseText);
-                    } else {
-                        resolve(null);
-                    }
-                };
-                xhr.send();
-            });
-        }
-
-        async function slowDownPage() {
-            for (let i = 0; i < 10; i++) {  // Adjust the number of requests as needed
-                await makeRequest();
-                console.log(`Request ${i + 1} completed`);
-            }
-            console.log("All requests completed");
-        }
-
-        slowDownPage();
+      window.addEventListener('load', () => {
+        document.body.appendChild(document.createTextNode('page is now loaded'))
+      })
     </script>
-  <p>Page is now completely loaded!</p>
+  <!-- <p>Page is now completely loaded!</p> -->
 </body>
 </html>
