@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LayoutBreakpints</title>
+    <script>
+        window.addEventListener("resize", ()=>{
+            document.body.innerHTML = "";
+            const div = document.createElement("div");
+            div.innerHTML = `width: ${window.innerWidth}, height: ${window.innerHeight}`;
+            document.body.appendChild(div);
+        })
+    </script>
+</head>
+<body>
+    change the width of this page to see a magic
+</body>
+</html>
