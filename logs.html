@@ -235,10 +235,27 @@
   ///////////////////////////        start test list             //////////////////////////////////////////
 
     const TestList = ({data}) => {
-        const classicTests = searchObjects(data, "eyes-classic")
-        const ufgTests = searchObjects(data, "eyes-ufg")
+        const [sortBy, setSortBy] = React.useState("time")
+        const by = cretirea => (test1, test2) => {
+            try {
+                return test1[1][cretirea] - test2[1][cretirea]
+            } catch {
+                return -1
+            }
+        }
+        const classicTests = searchObjects(data, "eyes-classic").sort(by(sortBy))
+        const ufgTests = searchObjects(data, "eyes-ufg").sort(by(sortBy))
+        const handleSortChange = (event) => {
+            setSortBy(event.target.value);
+        };
         return <div className="test-list classic">
             <h1>Test List</h1>
+            <label htmlFor="sort-by">Sort by:</label>
+            <select id="sort-by" value={sortBy} onChange={handleSortChange}>
+                <option value="time">time</option>
+                <option value="startedAt">startedAt</option>
+                <option value="finishedAt">finishedAt</option>
+            </select>
             <h2> Eyes Classic Tests </h2>
             <div className="test-container">
                 {
