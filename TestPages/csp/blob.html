@@ -12,6 +12,9 @@
 </head>
 <body>
     <img src="https://picsum.photos/150/150" alt="picsum"/>
+    <div id="mydiv" style="border: 3px dotted yellow; border-radius: 100%; margin: 3em; display: inline-block; padding: 3em;">
+        I AM A DIV
+    </div>
     <script>
         fetch('https://picsum.photos/150/150')
             .then(response => response.blob())
@@ -22,6 +25,12 @@
                 img.alt = 'Blob Image';
                 document.body.appendChild(img);
             });
-    </script>    
+        fetch('https://picsum.photos/100/100')
+            .then(response => response.blob())
+            .then(blob => {
+                const blobURL = URL.createObjectURL(blob);
+                document.getElementById("mydiv").style.backgroundImage = `url(${blobURL})`
+            });
+    </script>
 </body>
 </html>
