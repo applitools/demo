@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' 'unsafe-inline';
+        img-src 'self' https://*.picsum.photos https://picsum.photos blob:;
+        connect-src 'self' https://*.picsum.photos https://picsum.photos;
+    ">
+    <title>Document</title>
+</head>
+<body>
+    <img src="https://picsum.photos/150/150" alt="picsum"/>
+    <script>
+        fetch('https://picsum.photos/150/150')
+            .then(response => response.blob())
+            .then(blob => {
+                const blobURL = URL.createObjectURL(blob);
+                const img = document.createElement('img');
+                img.src = blobURL;
+                img.alt = 'Blob Image';
+                document.body.appendChild(img);
+            });
+    </script>    
+</body>
+</html>
