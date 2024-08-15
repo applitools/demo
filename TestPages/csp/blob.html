@@ -11,12 +11,12 @@
     <title>Document</title>
 </head>
 <body>
-    <img src="https://picsum.photos/150/150" alt="picsum"/>
+    <img src="https://fastly.picsum.photos/id/867/150/150.jpg?hmac=pI_d1IClDDjpw1LjJLQOIjLSTE13EQQuWB20CXJBY20" alt="picsum"/>
     <div id="mydiv" style="border: 3px dotted yellow; border-radius: 100%; margin: 3em; display: inline-block; padding: 3em;">
         I AM A DIV
     </div>
     <script>
-        fetch('https://picsum.photos/150/150')
+        fetch('https://fastly.picsum.photos/id/530/150/150.jpg?hmac=N39NeLHvmgIPFGNp6EwQtbJj8sfixdzIktgXqCF4S5g')
             .then(response => response.blob())
             .then(blob => {
                 const blobURL = URL.createObjectURL(blob);
@@ -25,7 +25,7 @@
                 img.alt = 'Blob Image';
                 document.body.appendChild(img);
             });
-        fetch('https://picsum.photos/100/100')
+        fetch('https://fastly.picsum.photos/id/136/100/100.jpg?hmac=oWzL5pfcxuyOxGb_TO11qZNTGx28Va1pL3Rtq0UCnFo')
             .then(response => response.blob())
             .then(blob => {
                 const blobURL = URL.createObjectURL(blob);
