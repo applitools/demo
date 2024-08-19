@@ -353,8 +353,9 @@
     ///////////////////////////     start general log data            //////////////////////////////////////////
 
     const LogData = ({data}) => {
-        const sdkData = eval(searchLogs(analyzed,"logEvent")[0][1].logs[0].split("with settings ")[1])[0]
+        const sdkData = eval(searchLogs(analyzed,"logEvent")[0]?.[1].logs[0].split("with settings ")[1])?.[0]
         console.log(sdkData)
+        if(!sdkData) return <h1>no sdk data</h1>
         return <div className="log-data">
             <h1>General Information</h1>
             <ul>
