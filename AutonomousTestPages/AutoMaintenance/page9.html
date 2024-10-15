@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page</title>
+  <style>
+    html {
+      height: 100vh;
+    }
+    body {
+      position: relative;
+      height: 100%;
+      min-height: 100%;
+      margin: 0;
+    }
+    h4 {
+      position: absolute;
+    }
+  </style>
+</head>
+<body style="text-align: center">
+  <div><h1>Page 9</h1></div>
+  <h3 id="dateAndTime"></h3>
+  <h4 id="timer1"></h4>
+  <h4 id="timer2"></h4>
+  <h4 id="timer3"></h4>
+  <h3 id="timer4"></h3>
+  <h3 id="timer5"></h3>
+  <h3 id="timer6"></h3>
+  <h4 id="timer7"></h4>
+  <h4 id="timer8"></h4>
+  <h4 id="timer9"></h4>
+  <h3 id="timer10" style="color: red"></h3>
+  <h3 id="timer11" style="color: green"></h3>
+  <h3 id="timer12" style="color: red"></h3>
+  <script>
+    window.onload = () => {
+      const date = new Date();
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const hours = date.getHours();
+      const years = date.getFullYear();
+      let minutes = 2 * Math.round(date.getMinutes() / 2);
+      minutes = minutes === 60 ? 0 : minutes;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      const time = `${hours}:${minutes}`
+      document.getElementById("dateAndTime").innerHTML = `${time}<br/>${day}/${month}/${years}`;
+      const styleArray = [
+        {
+          left: "100px"
+        },
+        {
+          width: "100%"
+        },
+        {
+          right: "100px"
+        }
+      ]
+
+      for(var i=1;i<13;i++) {
+        const module = (i-1) % styleArray.length;
+        const bottom = Math.ceil(i / styleArray.length) * 50;
+        const color = document.getElementById(`timer${i}`).style.color || "black";
+        document.getElementById(`timer${i}`).style = `${Object.entries(styleArray[module]).map(([key, value]) => `${key}:${value}`).join(";")};position: absolute;bottom: ${bottom}px; color: ${color};`
+        document.getElementById(`timer${i}`).innerHTML = time;
+      }
+    };
+  </script>
+</body>
+</html>

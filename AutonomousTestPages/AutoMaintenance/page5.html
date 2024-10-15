@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page</title>
+</head>
+
+<body style="text-align: center">
+  <div>
+    <h1>Page 5</h1>
+  </div>
+  <h3 id="timer"></h3>
+  <script>
+    window.onload = () => {
+      const date = new Date();
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const hours = date.getHours();
+      let minutes = 2 * Math.round(date.getMinutes() / 2);
+      minutes = minutes === 60 ? 0 : minutes;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      document.getElementById("timer").innerHTML = `${day}/${month}<br/>${hours}:${minutes}`
+    };
+  </script>
+</body>
+
+</html>
