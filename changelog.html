@@ -31,8 +31,69 @@
             padding: 10px;
             border-radius: 5px;
         }
+
+        section {
+            margin-left: 1.5em;
+        }
+
+        h1,h2,h3,h4,h5,h6,h7 {
+            margin: 0;
+        }
+        ul {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            // https://github.com/markedjs/marked/discussions/2889#discussioncomment-6580685
+            // The sectionLevel will help us prevent matching the same header multiple times.
+            let sectionLevel = 0;
+
+            // Creating regular expressions is expensive so we create them once.
+            // Create 7 sections since that is the maximum heading level.
+            const sectionRegexps = new Array(7).fill().map((e, i) => new RegExp(`^(#{${i + 1}} )[^]*?(?:\\n(?=\\1)|$)`));
+
+            const sectionExtension = {
+                extensions: [{
+                    name: 'sectionBlock',
+                    level: 'block',
+                    start(src) {
+                        // Match when # is at the beginning of a line.
+                        return src.match(/^#/m)?.index;
+                    },
+                    tokenizer(src) {
+                        const match = src.match(sectionRegexps[sectionLevel]);
+                        if (!match) {
+                            return;
+                        }
+
+
+                        sectionLevel++;
+                        // Tokenize text inside the section.
+                        // Only add sectionBlock token for headers one level up from current level.
+                        const tokens = this.lexer.blockTokens(match[0]);
+                        sectionLevel--;
+
+                        return {
+                            type: 'sectionBlock',
+                            raw: match[0],
+                            level: sectionLevel + 1,
+                            tokens
+                        };
+                    },
+                    renderer(token) {
+                        const tag = token.level === 1 ? 'article' : 'section';
+                        return `<${tag}>\n${this.parser.parse(token.tokens)}</${tag}>\n`;
+                    }
+                }]
+            };
+
+            window.mymarked = new marked.Marked(sectionExtension);
+        })
+    </script>
 </head>
 
 <body>
@@ -65,7 +126,7 @@
                     const obj = markdownToJson(markdown)
                     const filtered = filterObj(obj)
                     console.log(filtered)
-                    const htmlContent = marked.parse(jsonToMarkdown(filtered));
+                    const htmlContent = window.mymarked.parse(jsonToMarkdown(filtered));
                     markdownContent.innerHTML = htmlContent;
                 };
                 reader.readAsText(file);
@@ -136,49 +197,59 @@
 
         // Function to convert markdown to JSON representation
         function markdownToJson(markdown) {
-            const jsonOutput = {};
             const lines = markdown.split('\n');
-            let stack = [];
+            let jsonOutput = {};
+            let currentSection = null;
 
-            lines.forEach(line => {
+            const createSection = (title) => {
+                return {
+                    title: title,
+                    content: [],
+                    subsections: []
+                };
+            };
+
+            const addLineToCurrentSection = (line) => {
+                if (currentSection) {
+                    currentSection.content.push(line);
+                }
+            };
+
+            const processLine = (line) => {
                 const headerMatch = line.match(/^(#+)\s+(.*)$/);
                 if (headerMatch) {
                     const level = headerMatch[1].length; // Number of # symbols indicates header level
                     const title = headerMatch[2];
 
-                    const section = {
-                        title: title,
-                        content: [],
-                        subsections: []
-                    };
+                    const section = createSection(title);
 
-                    if (level === 1) {
-                        jsonOutput[title] = section;
-                        stack = [section];
-                    } else {
-                        // Ensure stack is properly managed based on header levels
-                        while (stack.length >= level) {
-                            stack.pop(); // Go back up the stack if we're at a lower level
-                        }
-
-                        if (stack.length > 0) {
-                            stack[stack.length - 1].subsections.push(section);
-                        } else {
-                            // If there's no parent section for a lower-level header, add it directly to the output
-                            jsonOutput[title] = section;
-                        }
-
-                        stack.push(section);
+                    // If the current section is at a higher or same level, pop back to a suitable parent
+                    while (stack.length >= level) {
+                        stack.pop();
                     }
-                } else if (stack.length > 0) {
-                    // Add line to current section's content if it exists
-                    stack[stack.length - 1].content.push(line);
+
+                    // If there's a valid parent in the stack, add the new section as a subsection
+                    if (stack.length > 0) {
+                        stack[stack.length - 1].subsections.push(section);
+                    } else {
+                        // If there's no parent section, add it to the top level
+                        jsonOutput[title] = section;
+                    }
+
+                    // Push the new section onto the stack and set it as the current section
+                    stack.push(section);
+                    currentSection = section;
+                } else {
+                    // If not a header, add the line to the current section's content
+                    addLineToCurrentSection(line);
                 }
-            });
+            };
+
+            const stack = [];
+            lines.forEach(processLine);
 
             // Clean up empty content arrays
             const cleanJson = (obj) => {
-                // Ensure obj is an object before accessing its properties
                 if (obj && typeof obj === 'object') {
                     if (obj.content && obj.content.length === 0) delete obj.content;
                     if (obj.subsections) {
@@ -191,6 +262,7 @@
 
             return jsonOutput;
         }
+
 
         function jsonToMarkdown(json) {
             let markdown = '';
