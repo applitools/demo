@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #drop-zone {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+
+        #drop-zone.hover {
+            background-color: #e0e0e0;
+        }
+
+        #markdown-content {
+            white-space: pre-wrap;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        section {
+            margin-left: 1.5em;
+        }
+
+        h1,h2,h3,h4,h5,h6,h7 {
+            margin: 0;
+        }
+        ul {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        window.addEventListener('load', () => {
+            // https://github.com/markedjs/marked/discussions/2889#discussioncomment-6580685
+            // The sectionLevel will help us prevent matching the same header multiple times.
+            let sectionLevel = 0;
+
+            // Creating regular expressions is expensive so we create them once.
+            // Create 7 sections since that is the maximum heading level.
+            const sectionRegexps = new Array(7).fill().map((e, i) => new RegExp(`^(#{${i + 1}} )[^]*?(?:\\n(?=\\1)|$)`));
+
+            const sectionExtension = {
+                extensions: [{
+                    name: 'sectionBlock',
+                    level: 'block',
+                    start(src) {
+                        // Match when # is at the beginning of a line.
+                        return src.match(/^#/m)?.index;
+                    },
+                    tokenizer(src) {
+                        const match = src.match(sectionRegexps[sectionLevel]);
+                        if (!match) {
+                            return;
+                        }
+
+
+                        sectionLevel++;
+                        // Tokenize text inside the section.
+                        // Only add sectionBlock token for headers one level up from current level.
+                        const tokens = this.lexer.blockTokens(match[0]);
+                        sectionLevel--;
+
+                        return {
+                            type: 'sectionBlock',
+                            raw: match[0],
+                            level: sectionLevel + 1,
+                            tokens
+                        };
+                    },
+                    renderer(token) {
+                        const tag = token.level === 1 ? 'article' : 'section';
+                        return `<${tag}>\n${this.parser.parse(token.tokens)}</${tag}>\n`;
+                    }
+                }]
+            };
+
+            window.mymarked = new marked.Marked(sectionExtension);
+        })
+    </script>
+</head>
+
+<body>
+    <h1>Changelog Viewer</h1>
+    <div id="drop-zone">Drag and drop your markdown file here</div>
+    <div id="markdown-content"></div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const markdownContent = document.getElementById('markdown-content');
+
+        dropZone.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropZone.classList.add('hover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('hover');
+        });
+
+        dropZone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropZone.classList.remove('hover');
+
+            const file = event.dataTransfer.files[0];
+            if (file && file.type === 'text/markdown') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const markdown = e.target.result;
+                    const obj = markdownToJson(markdown)
+                    const filtered = filterObj(obj)
+                    console.log(filtered)
+                    const htmlContent = window.mymarked.parse(jsonToMarkdown(filtered));
+                    markdownContent.innerHTML = htmlContent;
+                };
+                reader.readAsText(file);
+            } else {
+                markdownContent.innerHTML = 'Please drop a valid Markdown (.md) file.';
+            }
+        });
+
+        function filterObj(obj) {
+            const filtered = {};
+
+            const cleanContent = (content) => {
+                // Filter out empty lines
+                return content.filter(line => line.trim() !== '' && !line.includes(" bumped to "));
+            };
+
+            const shouldIncludeSection = (section) => {
+                // Determine if the section should be included based on content or subsections
+                const hasContent = section.content && section.content.length > 0;
+                const hasSubsections = section.subsections && section.subsections.length > 0;
+                return hasContent || hasSubsections;
+            };
+
+            const filterSubsections = (subsections) => {
+                // Filter and clean subsections recursively
+                return subsections.reduce((acc, subsection) => {
+                    if (subsection.content) {
+                        subsection.content = cleanContent(subsection.content);
+                    }
+                    if (shouldIncludeSection(subsection)) {
+                        const filteredSubsection = { ...subsection }; // Shallow copy to avoid mutation
+                        if (subsection.subsections) {
+                            filteredSubsection.subsections = filterSubsections(subsection.subsections);
+                        }
+                        acc.push(filteredSubsection);
+                    }
+                    return acc;
+                }, []);
+            };
+
+            for (const title in obj) {
+                const section = obj[title];
+
+                // Clean the section's content
+                if (section.content) {
+                    section.content = cleanContent(section.content);
+                } else {
+                    section.content = []; // Initialize as empty array if not defined
+                }
+
+                // Check if the section title includes "spec-"
+                if (!title.includes("spec-")) {
+                    // Include the section if it has content or valid subsections
+                    if (shouldIncludeSection(section)) {
+                        filtered[title] = { ...section }; // Spread the section to avoid mutation
+
+                        // Filter subsections recursively if they exist
+                        if (section.subsections) {
+                            filtered[title].subsections = filterSubsections(section.subsections);
+                        }
+                    }
+                }
+            }
+
+            return filtered;
+        }
+
+
+        // Function to convert markdown to JSON representation
+        function markdownToJson(markdown) {
+            const lines = markdown.split('\n');
+            let jsonOutput = {};
+            let currentSection = null;
+
+            const createSection = (title) => {
+                return {
+                    title: title,
+                    content: [],
+                    subsections: []
+                };
+            };
+
+            const addLineToCurrentSection = (line) => {
+                if (currentSection) {
+                    currentSection.content.push(line);
+                }
+            };
+
+            const processLine = (line) => {
+                const headerMatch = line.match(/^(#+)\s+(.*)$/);
+                if (headerMatch) {
+                    const level = headerMatch[1].length; // Number of # symbols indicates header level
+                    const title = headerMatch[2];
+
+                    const section = createSection(title);
+
+                    // If the current section is at a higher or same level, pop back to a suitable parent
+                    while (stack.length >= level) {
+                        stack.pop();
+                    }
+
+                    // If there's a valid parent in the stack, add the new section as a subsection
+                    if (stack.length > 0) {
+                        stack[stack.length - 1].subsections.push(section);
+                    } else {
+                        // If there's no parent section, add it to the top level
+                        jsonOutput[title] = section;
+                    }
+
+                    // Push the new section onto the stack and set it as the current section
+                    stack.push(section);
+                    currentSection = section;
+                } else {
+                    // If not a header, add the line to the current section's content
+                    addLineToCurrentSection(line);
+                }
+            };
+
+            const stack = [];
+            lines.forEach(processLine);
+
+            // Clean up empty content arrays
+            const cleanJson = (obj) => {
+                if (obj && typeof obj === 'object') {
+                    if (obj.content && obj.content.length === 0) delete obj.content;
+                    if (obj.subsections) {
+                        obj.subsections.forEach(cleanJson);
+                    }
+                }
+            };
+
+            cleanJson(jsonOutput);
+
+            return jsonOutput;
+        }
+
+
+        function jsonToMarkdown(json) {
+            let markdown = '';
+
+            const generateMarkdown = (obj, level = 1) => {
+                for (const title in obj) {
+                    const section = obj[title];
+                    markdown += `${'#'.repeat(level)} ${section.title}\n`;
+
+                    if (section.content && section.content.length > 0) {
+                        markdown += section.content.join('\n') + '\n';
+                    }
+
+                    if (section.subsections && section.subsections.length > 0) {
+                        section.subsections.forEach(subsection => {
+                            generateMarkdown({ [subsection.title]: subsection }, level + 1);
+                        });
+                    }
+                }
+            };
+
+            generateMarkdown(json);
+
+            return markdown.trim(); // Return markdown without trailing newline
+        }
+
+    </script>
+</body>
+
+</html>
