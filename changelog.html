@@ -62,15 +62,77 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const markdown = e.target.result;
-                    const htmlContent = marked.parse(markdown);
+                    const obj = markdownToJson(markdown)
+                    const filtered = filterObj(obj)
+                    console.log(filtered)
+                    const htmlContent = marked.parse(jsonToMarkdown(filtered));
                     markdownContent.innerHTML = htmlContent;
-                    console.log(markdownToJson(markdown)); // Log the JSON representation
                 };
                 reader.readAsText(file);
             } else {
                 markdownContent.innerHTML = 'Please drop a valid Markdown (.md) file.';
             }
         });
+
+        function filterObj(obj) {
+            const filtered = {};
+
+            const cleanContent = (content) => {
+                // Filter out empty lines
+                return content.filter(line => line.trim() !== '' && !line.includes(" bumped to "));
+            };
+
+            const shouldIncludeSection = (section) => {
+                // Determine if the section should be included based on content or subsections
+                const hasContent = section.content && section.content.length > 0;
+                const hasSubsections = section.subsections && section.subsections.length > 0;
+                return hasContent || hasSubsections;
+            };
+
+            const filterSubsections = (subsections) => {
+                // Filter and clean subsections recursively
+                return subsections.reduce((acc, subsection) => {
+                    if (subsection.content) {
+                        subsection.content = cleanContent(subsection.content);
+                    }
+                    if (shouldIncludeSection(subsection)) {
+                        const filteredSubsection = { ...subsection }; // Shallow copy to avoid mutation
+                        if (subsection.subsections) {
+                            filteredSubsection.subsections = filterSubsections(subsection.subsections);
+                        }
+                        acc.push(filteredSubsection);
+                    }
+                    return acc;
+                }, []);
+            };
+
+            for (const title in obj) {
+                const section = obj[title];
+
+                // Clean the section's content
+                if (section.content) {
+                    section.content = cleanContent(section.content);
+                } else {
+                    section.content = []; // Initialize as empty array if not defined
+                }
+
+                // Check if the section title includes "spec-"
+                if (!title.includes("spec-")) {
+                    // Include the section if it has content or valid subsections
+                    if (shouldIncludeSection(section)) {
+                        filtered[title] = { ...section }; // Spread the section to avoid mutation
+
+                        // Filter subsections recursively if they exist
+                        if (section.subsections) {
+                            filtered[title].subsections = filterSubsections(section.subsections);
+                        }
+                    }
+                }
+            }
+
+            return filtered;
+        }
+
 
         // Function to convert markdown to JSON representation
         function markdownToJson(markdown) {
