@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Markdown File Viewer</title>
+  <title>Changelog Viewer</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -31,7 +31,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <h1>Markdown File Viewer</h1>
+  <h1>Changelog Viewer</h1>
   <div id="drop-zone">Drag and drop your markdown file here</div>
   <div id="markdown-content"></div>
 
@@ -59,12 +59,71 @@
           const markdown = e.target.result;
           const htmlContent = marked.parse(markdown);
           markdownContent.innerHTML = htmlContent;
+          console.log(markdownToJson(markdown)); // Log the JSON representation
         };
         reader.readAsText(file);
       } else {
         markdownContent.innerHTML = 'Please drop a valid Markdown (.md) file.';
       }
     });
+
+    // Function to convert markdown to JSON representation
+    function markdownToJson(markdown) {
+      const jsonOutput = {};
+      const lines = markdown.split('\n');
+      let stack = [];
+
+      lines.forEach(line => {
+        const headerMatch = line.match(/^(#+)\s+(.*)$/);
+        if (headerMatch) {
+          const level = headerMatch[1].length; // Number of # symbols indicates header level
+          const title = headerMatch[2];
+
+          const section = {
+            title: title,
+            content: [],
+            subsections: []
+          };
+
+          if (level === 1) {
+            jsonOutput[title] = section;
+            stack = [section];
+          } else {
+            // Ensure stack is properly managed based on header levels
+            while (stack.length >= level) {
+              stack.pop(); // Go back up the stack if we're at a lower level
+            }
+
+            if (stack.length > 0) {
+              stack[stack.length - 1].subsections.push(section);
+            } else {
+              // If there's no parent section for a lower-level header, add it directly to the output
+              jsonOutput[title] = section;
+            }
+
+            stack.push(section);
+          }
+        } else if (stack.length > 0) {
+          // Add line to current section's content if it exists
+          stack[stack.length - 1].content.push(line);
+        }
+      });
+
+      // Clean up empty content arrays
+      const cleanJson = (obj) => {
+        // Ensure obj is an object before accessing its properties
+        if (obj && typeof obj === 'object') {
+          if (obj.content && obj.content.length === 0) delete obj.content;
+          if (obj.subsections) {
+            obj.subsections.forEach(cleanJson);
+          }
+        }
+      };
+
+      cleanJson(jsonOutput);
+
+      return jsonOutput;
+    }
   </script>
 </body>
 </html>
