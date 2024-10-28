@@ -30,6 +30,7 @@ html, body {
   border-radius: 5px;
   border: 2px solid dodgerblue;
   background-color: paleturquoise;
+  width: 200px;
 }
 
 #input:hover {
