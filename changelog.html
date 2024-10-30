@@ -177,8 +177,20 @@
                     section.content = []; // Initialize as empty array if not defined
                 }
 
-                // Check if the section title includes "spec-"
-                if (!title.includes("spec-")) {
+
+                const blacklist = [
+                    'js/core',
+                    'js/dom-snapshot',
+                    'js/snippets',
+                    'js/driver',
+                    'js/screenshoter',
+                    'js/nml-client',
+                    'js/ec-client',
+                    'js/eyes'
+                ]
+
+                // Check if the section title includes "spec-", and it's not blacklisted
+                if (!title.includes("spec-") && !blacklist.includes(title.trim())) {
                     // Include the section if it has content or valid subsections
                     if (shouldIncludeSection(section)) {
                         filtered[title] = { ...section }; // Spread the section to avoid mutation
