@@ -119,7 +119,7 @@
             dropZone.classList.remove('hover');
 
             const file = event.dataTransfer.files[0];
-            if (file && file.type === 'text/markdown') {
+            if (file) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const markdown = e.target.result;
