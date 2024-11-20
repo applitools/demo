@@ -34,7 +34,7 @@
     var elapsed = currentTime - startTime;
     var remainingTime = Math.floor(Math.max(countdown - elapsed, 0));
     var countdownElement = document.getElementById('countdown');
-    countdownElement.textContent = remainingTime + 'ms';
+    countdownElement.textContent = remainingTime + 'ms ' + Math.random();
     if (remainingTime > 0) {
       requestAnimationFrame(updateCountdown);
     } else {
