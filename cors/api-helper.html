@@ -1,31 +1,46 @@
 <script>
-  // 2. Listen for the request from the Figma plugin
   window.addEventListener('message', async event => {
-    // Note: No need to check origin here if this page is ONLY for your plugin,
-    // but in a real app you might add a check: if (event.origin !== 'https://www.figma.com') return;
+    // Basic security: In a real app, you might want a stronger origin check
+    // if (event.origin !== 'https://www.figma.com') return; 
 
     const { type, payload } = event.data;
+    if (type !== 'XHR_REQUEST') return;
 
-    if (type === 'API_REQUEST') {
-      try {
-        const response = await fetch(payload.url, {
-          method: payload.method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload.body)
-        });
+    const { requestId, details, body } = payload;
+    
+    try {
+      const response = await fetch(details.url, {
+        method: details.method,
+        body: body, // fetch handles null body correctly
+        headers: { 'Content-Type': 'application/json' } // Add other headers if needed
+      });
 
-        const responseData = await response.json();
+      const data = await response.json();
 
-        // 3. Send the response data back to the plugin
-        parent.postMessage({
-          type: 'API_RESPONSE',
-          data: responseData
-        }, 'https://www.figma.com'); // Target Figma's origin
+      // Send a SUCCESS response back to the plugin
+      parent.postMessage({
+        type: 'XHR_RESPONSE',
+        payload: {
+          requestId,
+          ok: response.ok,
+          status: response.status,
+          statusText: response.statusText,
+          data: data
+        }
+      }, event.origin); // Respond to the origin that sent the request
 
-      } catch (error) {
-        // Handle errors and send them back if needed
-        parent.postMessage({ type: 'API_ERROR', error: error.message }, 'https://www.figma.com');
-      }
+    } catch (error) {
+      // Send an ERROR response back
+      parent.postMessage({
+        type: 'XHR_RESPONSE',
+        payload: {
+          requestId,
+          ok: false,
+          status: 0,
+          statusText: error.message,
+          data: null
+        }
+      }, event.origin);
     }
   });
 </script>
