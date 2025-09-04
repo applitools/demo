@@ -1,44 +1,39 @@
 <script>
   window.addEventListener('message', async event => {
-    // Basic security: In a real app, you might want a stronger origin check
-    // if (event.origin !== 'https://www.figma.com') return; 
-
     const { type, payload } = event.data;
-    if (type !== 'XHR_REQUEST') return;
+    if (type !== 'UNIVERSAL_REQUEST') return;
 
-    const { requestId, details, body } = payload;
-    
+    const { requestId, url, options } = payload;
+
     try {
-      const response = await fetch(details.url, {
-        method: details.method,
-        body: body, // fetch handles null body correctly
-        headers: { 'Content-Type': 'application/json' } // Add other headers if needed
-      });
-
-      const data = await response.json();
+      const response = await fetch(url, options);
+      
+      // Handle different response types. For this SDK, text/json is most common.
+      const responseBody = await response.text();
 
       // Send a SUCCESS response back to the plugin
       parent.postMessage({
-        type: 'XHR_RESPONSE',
+        type: 'UNIVERSAL_RESPONSE',
         payload: {
           requestId,
-          ok: response.ok,
-          status: response.status,
-          statusText: response.statusText,
-          data: data
+          ok: true,
+          response: {
+            status: response.status,
+            statusText: response.statusText,
+            body: responseBody,
+            headers: Object.fromEntries(response.headers.entries()),
+          },
         }
-      }, event.origin); // Respond to the origin that sent the request
+      }, event.origin);
 
     } catch (error) {
       // Send an ERROR response back
       parent.postMessage({
-        type: 'XHR_RESPONSE',
+        type: 'UNIVERSAL_RESPONSE',
         payload: {
           requestId,
           ok: false,
-          status: 0,
-          statusText: error.message,
-          data: null
+          error: error.message || 'An unknown network error occurred.',
         }
       }, event.origin);
     }
