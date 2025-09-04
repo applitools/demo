@@ -1,0 +1,31 @@
+<script>
+  // 2. Listen for the request from the Figma plugin
+  window.addEventListener('message', async event => {
+    // Note: No need to check origin here if this page is ONLY for your plugin,
+    // but in a real app you might add a check: if (event.origin !== 'https://www.figma.com') return;
+
+    const { type, payload } = event.data;
+
+    if (type === 'API_REQUEST') {
+      try {
+        const response = await fetch(payload.url, {
+          method: payload.method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload.body)
+        });
+
+        const responseData = await response.json();
+
+        // 3. Send the response data back to the plugin
+        parent.postMessage({
+          type: 'API_RESPONSE',
+          data: responseData
+        }, 'https://www.figma.com'); // Target Figma's origin
+
+      } catch (error) {
+        // Handle errors and send them back if needed
+        parent.postMessage({ type: 'API_ERROR', error: error.message }, 'https://www.figma.com');
+      }
+    }
+  });
+</script>
