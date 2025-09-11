@@ -5,6 +5,328 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log viewer</title>
     <link rel="stylesheet" type="text/css" href="https://noam-gaash.co.il/bio/main.css" />
+    <style>
+        /* Time Analysis Styles */
+        .timing-analysis {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .performance-summary {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+        
+        .status.slow {
+            color: #d73527;
+            font-weight: bold;
+        }
+        
+        .slow-indicator {
+            color: #ffc107;
+            margin-left: 0.5rem;
+        }
+        
+        .phases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .phase-card {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .phase-card.error {
+            border-left: 4px solid #d73527;
+        }
+        
+        .phase-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .phase-stats div {
+            margin: 0.25rem 0;
+        }
+        
+        .performance-warnings ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .warning {
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            border-radius: 4px;
+        }
+        
+        .warning.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .warning.critical {
+            background: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .warning.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .recommendation {
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            border-radius: 4px;
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .recommendation.high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .recommendation.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        /* Time Analysis Panel Styles */
+        .time-analysis-panel {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .stat-card h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-value.warning {
+            color: #d73527;
+        }
+        
+        .extreme-tests {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .distribution-chart {
+            margin: 1rem 0;
+        }
+        
+        .bucket {
+            display: grid;
+            grid-template-columns: 120px 1fr 60px;
+            align-items: center;
+            margin: 0.5rem 0;
+            gap: 1rem;
+        }
+        
+        .bucket-bar {
+            height: 20px;
+            border-radius: 10px;
+            min-width: 2px;
+        }
+        
+        .bucket.fast .bucket-bar { background: #28a745; }
+        .bucket.normal .bucket-bar { background: #17a2b8; }
+        .bucket.slow .bucket-bar { background: #ffc107; }
+        .bucket.critical .bucket-bar { background: #d73527; }
+        
+        .slow-tests-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .slow-test-card {
+            padding: 1rem;
+            background: #fff3cd;
+            border-radius: 4px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .test-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-time {
+            font-size: 1.1rem;
+            color: #d73527;
+        }
+        
+        .test-bottleneck, .test-efficiency {
+            margin-top: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        /* Performance Config Analyzer Styles */
+        .performance-analyzer {
+            border: 1px solid lightgray;
+            margin: 10px;
+            padding: 20px;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .performance-summary {
+            border: 2px solid;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .performance-summary.error {
+            border-color: red;
+            background-color: #fee;
+        }
+
+        .performance-summary.warning {
+            border-color: orange;
+            background-color: #ffc;
+        }
+
+        .performance-summary.success {
+            border-color: green;
+            background-color: #efe;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .metric label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .metric span {
+            font-size: 1.1em;
+            padding: 5px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 4px;
+        }
+
+        .metric .total-time {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .warning-message {
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+
+        .warning-message.error {
+            background-color: #ffebee;
+            border-left: 4px solid red;
+        }
+
+        .warning-message.warning {
+            background-color: #fff8e1;
+            border-left: 4px solid orange;
+        }
+
+        .warning-message.success {
+            background-color: #e8f5e8;
+            border-left: 4px solid green;
+        }
+
+        .config-details {
+            margin-top: 20px;
+        }
+
+        .config-section {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .config-section h3 {
+            margin-top: 0;
+            color: #444;
+        }
+
+        .config-section ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .config-section li {
+            margin: 5px 0;
+        }
+
+        .environments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .environment {
+            padding: 8px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
 </head>
 <body>
     <script>var exports = {};</script>
@@ -59,16 +381,11 @@
         const file = files[0];
         const reader = new FileReader();
 
-        reader.onloadend = function loadend(event) {
-            if(event.target.result) {
-                const contents = event.target.result;
-                const result = contents
+        reader.onload = function (event) {
+            const contents = event.target.result;
+            const result = contents
 
-                process({ data: result, filename: file.name });
-            } else {
-                console.error('Failed to read file');
-                event.target.onloadend = loadend
-            }
+            process({ data: result, filename: file.name });
         }
         reader.readAsText(file);
     }
@@ -78,9 +395,8 @@
             // remove lines starting with "background.js", because this prefix is added by the browser on browser extension logs
             .map(s=>s.replace(/^background\.js:\d+ /, '').trim())
             // remove lines starting with `[2024-12-16T18:59:20.847Z] ` because this timestamp is added by CI tools like Jenkins
-            .map(s=>s.replace(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]/, '').trim())
+            .map(s=>s.replace(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] /, '').trim())
         .join('\n'))
-        debugger
         const structured = structureLogs(logs)
         const analyzed = exports.analyzeLogs(structureLogs(logs))
         document.getElementById('file-name').innerText = filename;
@@ -192,16 +508,50 @@
 
   const RenderTargetsAnalizer = ({data}) => {
     const targets = searchObjects(data, "render-target")
+    const [currentPage, setCurrentPage] = React.useState(1)
+    const [targetsPerPage] = React.useState(5)
+    
+    const totalTargets = targets.length
+    const totalPages = Math.ceil(totalTargets / targetsPerPage)
+    const startIndex = (currentPage - 1) * targetsPerPage
+    const paginatedTargets = targets.slice(startIndex, startIndex + targetsPerPage)
+    
     return <>
-        <h1>Render Targets</h1>
-        <div className="render-targets">
-            {
-            targets.map(target => <div className={`render-target ${target.hasError ? "error" : ""}`} key={target[0]}>
-                <h3>{target[0]}</h3>
-                <UploadResourceAnalizer data={target[1]}/>
-            </div>)
-        }
-        </div>
+        <h1>Render Targets ({totalTargets} total)</h1>
+        {totalTargets > 0 ? (
+            <>
+                <div className="pagination-info">
+                    Page {currentPage} of {totalPages} (showing {paginatedTargets.length} of {totalTargets} targets)
+                </div>
+                <div className="pagination-controls" style={{margin: '10px 0'}}>
+                    <button 
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        style={{marginRight: '10px'}}
+                    >
+                        Previous
+                    </button>
+                    <span>Page {currentPage} of {totalPages}</span>
+                    <button 
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                        style={{marginLeft: '10px'}}
+                    >
+                        Next
+                    </button>
+                </div>
+                <div className="render-targets">
+                    {
+                    paginatedTargets.map(target => <div className={`render-target ${target.hasError ? "error" : ""}`} key={target[0]}>
+                        <h3>{extractTestDisplayName(target[0], target[1])}</h3>
+                        <UploadResourceAnalizer data={target[1]}/>
+                    </div>)
+                    }
+                </div>
+            </>
+        ) : (
+            <div>No render targets found</div>
+        )}
     </>;
   }
 
@@ -243,10 +593,708 @@
     return []
   }
   ///////////////////////////        end resources analyzer       //////////////////////////////////////////
+  
+  ///////////////////////////     start timing analysis utilities    //////////////////////////////////////////
+  
+  function extractTimingData(testData) {
+    return {
+      phases: {
+        open: extractPhaseTime(testData, 'eyes-open'),
+        check: extractPhaseTime(testData, 'check-base'), 
+        close: extractPhaseTime(testData, 'close-base'),
+        upload: extractPhaseTime(testData, 'upload-resource'),
+        getResults: extractPhaseTime(testData, 'get-eyes-results')
+      },
+      network: extractNetworkTimes(testData),
+      snapshots: extractSnapshotTimes(testData),
+      total: testData.time || 0
+    }
+  }
+
+  function extractPhaseTime(data, phase) {
+    const phaseObjects = searchObjects(data, phase)
+    return phaseObjects.map(obj => {
+      let duration = obj[1]?.time || 0
+      
+      // If no explicit time, try to calculate from timestamps
+      if (duration === 0 && obj[1]?.startedAt && obj[1]?.finishedAt) {
+        const startTime = new Date(obj[1].startedAt).getTime()
+        const endTime = new Date(obj[1].finishedAt).getTime()
+        duration = endTime - startTime
+      }
+      
+      // If still no duration, estimate from parent test time divided by operation count
+      if (duration === 0 && data.time) {
+        const allPhaseObjects = searchObjects(data, phase)
+        duration = Math.floor(data.time / allPhaseObjects.length)
+      }
+      
+      return {
+        duration: duration,
+        startedAt: obj[1]?.startedAt,
+        finishedAt: obj[1]?.finishedAt,
+        hasError: obj[1]?.hasError,
+        name: obj[0] || phase,
+        logs: obj[1]?.logs || []
+      }
+    })
+  }
+  
+  function extractNetworkTimes(data) {
+    const networkOperations = []
+    
+    // Extract request timings from core-request patterns
+    const requests = searchObjects(data, 'core-request')
+    requests.forEach(req => {
+      if (req[1]?.time) {
+        networkOperations.push({
+          type: 'request',
+          duration: req[1].time,
+          startedAt: req[1].startedAt,
+          finishedAt: req[1].finishedAt,
+          name: req[0]
+        })
+      }
+    })
+    
+    return networkOperations
+  }
+  
+  function extractSnapshotTimes(data) {
+    const snapshots = []
+    
+    // Look for DOM snapshot related operations
+    const domSnapshots = searchLogs(data, "Taking dom snapshot")
+    const renderTargets = searchObjects(data, "render-target")
+    
+    renderTargets.forEach(target => {
+      if (target[1]?.time) {
+        snapshots.push({
+          type: 'dom-snapshot',
+          duration: target[1].time,
+          startedAt: target[1].startedAt,
+          finishedAt: target[1].finishedAt,
+          name: target[0]
+        })
+      }
+    })
+    
+    return snapshots
+  }
+  
+  ///////////////////////////      end timing analysis utilities     //////////////////////////////////////////
+  
+  ///////////////////////////     start test name extraction        //////////////////////////////////////////
+  
+  function extractTestDisplayName(testKey, testData) {
+    // Try to get test name from openEyes command
+    const openEyesLogs = searchLogs(testData, 'Command "openEyes" is called');
+    if (openEyesLogs.length > 0) {
+      try {
+        const logLines = openEyesLogs[0][1]?.logs || [];
+        for (const line of logLines) {
+          if (line.includes('testName:')) {
+            const testNameMatch = line.match(/testName:\s*['"](.*?)['"]/) || line.match(/testName:\s*'([^']*)'/) || line.match(/testName:\s*"([^"]*)"/);
+            if (testNameMatch) {
+              return `${testNameMatch[1]} (${testKey})`;
+            }
+          }
+        }
+      } catch (e) { /* ignore */ }
+    }
+    
+    // Try to get name from check command
+    const checkLogs = searchLogs(testData, 'Command "check" is called');
+    if (checkLogs.length > 0) {
+      try {
+        const logLines = checkLogs[0][1]?.logs || [];
+        for (const line of logLines) {
+          if (line.includes('name:')) {
+            const nameMatch = line.match(/name:\s*['"](.*?)['"]/) || line.match(/name:\s*'([^']*)'/) || line.match(/name:\s*"([^"]*)"/);
+            if (nameMatch) {
+              return `${nameMatch[1]} (${testKey})`;
+            }
+          }
+        }
+      } catch (e) { /* ignore */ }
+    }
+    
+    // Fallback to just the key
+    return testKey;
+  }
+  
+  ///////////////////////////     end test name extraction          //////////////////////////////////////////
+  
+  ///////////////////////////     start collapsible component        //////////////////////////////////////////
+  
+  const CollapsibleSection = ({title, children, defaultCollapsed = true}) => {
+    const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
+    
+    return (
+      <div className="collapsible-section">
+        <h2 
+          className="collapsible-header" 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          style={{cursor: 'pointer', padding: '10px', background: '#f5f5f5', margin: '10px', borderRadius: '5px'}}
+        >
+          {isCollapsed ? '▶ ' : '▼ '} {title}
+        </h2>
+        {!isCollapsed && (
+          <div className="collapsible-content">
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  ///////////////////////////     start performance config analyzer   //////////////////////////////////////////
+  
+  function extractAllPerformanceConfigs(data) {
+    try {
+        const allConfigs = [];
+        let totalCheckOperations = 0;
+        
+        // Extract from check commands with settings
+        const checkCommands = searchLogs(data, 'Command "check" is called with settings');
+        totalCheckOperations = checkCommands.length;
+        
+        for (const checkCommand of checkCommands) {
+            try {
+                const logLines = checkCommand[1]?.logs || [];
+                const fullLogText = logLines.join('\\n');
+                
+                // Find the opening brace and collect all lines until we have a complete object
+                const lines = logLines;
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].includes('Command "check" is called with settings')) {
+                        try {
+                            // Find the opening brace and collect all lines until we have a complete object
+                            const settingsLine = lines[i];
+                            const braceIndex = settingsLine.indexOf('{');
+                            if (braceIndex !== -1) {
+                                let configLines = [settingsLine.substring(braceIndex)];
+                                let braceCount = (settingsLine.match(/{/g) || []).length - (settingsLine.match(/}/g) || []).length;
+                                
+                                // Continue collecting lines until we have balanced braces
+                                let lineIndex = i + 1;
+                                while (braceCount > 0 && lineIndex < lines.length) {
+                                    const line = lines[lineIndex];
+                                    configLines.push(line);
+                                    braceCount += (line.match(/{/g) || []).length - (line.match(/}/g) || []).length;
+                                    lineIndex++;
+                                }
+                                
+                                if (braceCount === 0) {
+                                    const configStr = configLines.join('\\n');
+                                    const config = eval('(' + configStr + ')');
+                                    if (config) {
+                                        allConfigs.push({
+                                            lazyLoad: config.lazyLoad,
+                                            waitBeforeCapture: config.waitBeforeCapture || 0,
+                                            layoutBreakpoints: config.layoutBreakpoints,
+                                            concurrency: config.event?.concurrency || config.concurrency || 1,
+                                            environments: config.environments || [],
+                                            testName: config.name || 'Unknown',
+                                            useDom: config.useDom,
+                                            enablePatterns: config.enablePatterns,
+                                            ignoreDisplacements: config.ignoreDisplacements,
+                                            hooks: config.hooks,
+                                            disableBrowserFetching: config.disableBrowserFetching
+                                        });
+                                        break;
+                                    }
+                                }
+                            }
+                        } catch (parseError) { /* ignore and continue */ }
+                    }
+                }
+            } catch (e) { /* ignore and continue */ }
+        }
+        
+        // If no configs found in check commands, try fallback methods
+        if (allConfigs.length === 0) {
+            // Method 1: Look for logEvent requests
+            const logEvents = searchLogs(data, "logEvent");
+            if (logEvents.length > 0) {
+                try {
+                    const sdkData = eval(logEvents[0]?.[1].logs[0].split("with settings ")[1])?.[0];
+                    if (sdkData) {
+                        allConfigs.push({
+                            lazyLoad: sdkData.lazyLoad,
+                            waitBeforeCapture: sdkData.waitBeforeCapture || 0,
+                            layoutBreakpoints: sdkData.layoutBreakpoints,
+                            concurrency: sdkData.event?.concurrency || sdkData.concurrency || 1,
+                            environments: sdkData.environments || [],
+                            testName: 'From logEvent',
+                            useDom: sdkData.useDom,
+                            enablePatterns: sdkData.enablePatterns,
+                            ignoreDisplacements: sdkData.ignoreDisplacements,
+                            hooks: sdkData.hooks,
+                            disableBrowserFetching: sdkData.disableBrowserFetching
+                        });
+                    }
+                } catch (e) { /* ignore */ }
+            }
+            
+            // Method 2: Search for any logs containing lazyLoad configuration
+            if (allConfigs.length === 0) {
+                const lazyLoadLogs = searchLogs(data, "lazyLoad");
+                for (const logEntry of lazyLoadLogs) {
+                    try {
+                        const logLines = logEntry[1]?.logs || [];
+                        for (const logLine of logLines) {
+                            if (logLine.includes('scrollLength') && logLine.includes('waitingTime')) {
+                                const fullMatch = logLine.match(/{[\\s\\S]*lazyLoad[\\s\\S]*}/);
+                                if (fullMatch) {
+                                    try {
+                                        const config = eval('(' + fullMatch[0] + ')');
+                                        if (config.lazyLoad) {
+                                            allConfigs.push({
+                                                lazyLoad: config.lazyLoad,
+                                                waitBeforeCapture: config.waitBeforeCapture || 0,
+                                                layoutBreakpoints: config.layoutBreakpoints,
+                                                concurrency: config.event?.concurrency || config.concurrency || 1,
+                                                environments: config.environments || [],
+                                                testName: config.name || 'From lazyLoad logs',
+                                                useDom: config.useDom,
+                                                enablePatterns: config.enablePatterns,
+                                                ignoreDisplacements: config.ignoreDisplacements,
+                                                hooks: config.hooks,
+                                                disableBrowserFetching: config.disableBrowserFetching
+                                            });
+                                            break;
+                                        }
+                                    } catch (e2) { /* ignore */ }
+                                }
+                            }
+                        }
+                        if (allConfigs.length > 0) break;
+                    } catch (e) { /* ignore and continue */ }
+                }
+            }
+        }
+        
+        return {
+            configs: allConfigs,
+            totalCheckOperations
+        };
+    } catch (error) {
+        console.error('Error extracting performance configs:', error);
+        return { configs: [], totalCheckOperations: 0 };
+    }
+  }
+
+  function analyzeConfigurationVariations(allConfigs) {
+    if (!allConfigs || allConfigs.length === 0) return null;
+    
+    // Group configurations by their key characteristics
+    const lazyLoadGroups = {};
+    const waitBeforeCaptureGroups = {};
+    const environmentGroups = {};
+    const layoutBreakpointsGroups = {};
+    const uniqueScreens = new Set();
+    
+    allConfigs.forEach(config => {
+      // Group by lazyLoad settings
+      if (config.lazyLoad) {
+        const lazyKey = `${config.lazyLoad.scrollLength}-${config.lazyLoad.waitingTime}-${config.lazyLoad.maxAmountToScroll}`;
+        lazyLoadGroups[lazyKey] = lazyLoadGroups[lazyKey] || { config: config.lazyLoad, count: 0 };
+        lazyLoadGroups[lazyKey].count++;
+      } else {
+        lazyLoadGroups['none'] = lazyLoadGroups['none'] || { config: null, count: 0 };
+        lazyLoadGroups['none'].count++;
+      }
+      
+      // Group by waitBeforeCapture
+      const waitKey = config.waitBeforeCapture.toString();
+      waitBeforeCaptureGroups[waitKey] = waitBeforeCaptureGroups[waitKey] || { value: config.waitBeforeCapture, count: 0 };
+      waitBeforeCaptureGroups[waitKey].count++;
+      
+      // Group by environment count
+      const envKey = (config.environments?.length || 0).toString();
+      environmentGroups[envKey] = environmentGroups[envKey] || { count: config.environments?.length || 0, occurrences: 0 };
+      environmentGroups[envKey].occurrences++;
+      
+      // Track unique screen dimensions for all environment types
+      if (config.environments) {
+        config.environments.forEach(env => {
+          if (env.width && env.height) {
+            // Desktop/explicit dimensions
+            uniqueScreens.add(`${env.width}x${env.height}`);
+          } else if (env.chromeEmulationInfo && env.chromeEmulationInfo.deviceName) {
+            // Chrome emulation device
+            const orientation = env.chromeEmulationInfo.screenOrientation || 'portrait';
+            uniqueScreens.add(`chrome-${env.chromeEmulationInfo.deviceName}-${orientation}`);
+          } else if (env.iosDeviceInfo && env.iosDeviceInfo.deviceName) {
+            // iOS device
+            const orientation = env.iosDeviceInfo.screenOrientation || 'portrait';
+            const version = env.iosDeviceInfo.version ? `-${env.iosDeviceInfo.version}` : '';
+            uniqueScreens.add(`ios-${env.iosDeviceInfo.deviceName}${version}-${orientation}`);
+          } else if (env.androidDeviceInfo && env.androidDeviceInfo.deviceName) {
+            // Android device
+            const orientation = env.androidDeviceInfo.screenOrientation || 'portrait';
+            const version = env.androidDeviceInfo.version ? `-${env.androidDeviceInfo.version}` : '';
+            uniqueScreens.add(`android-${env.androidDeviceInfo.deviceName}${version}-${orientation}`);
+          }
+        });
+      }
+      
+      // Group by layout breakpoints
+      const layoutKey = config.layoutBreakpoints?.breakpoints ? 'enabled' : 'disabled';
+      layoutBreakpointsGroups[layoutKey] = layoutBreakpointsGroups[layoutKey] || { enabled: config.layoutBreakpoints?.breakpoints || false, count: 0 };
+      layoutBreakpointsGroups[layoutKey].count++;
+    });
+    
+    return {
+      lazyLoadGroups,
+      waitBeforeCaptureGroups,
+      environmentGroups,
+      layoutBreakpointsGroups,
+      uniqueScreens: uniqueScreens.size,
+      totalConfigurations: allConfigs.length,
+      uniqueConfigurations: Object.keys(lazyLoadGroups).length
+    };
+  }
+
+  function calculatePerformanceMetrics(config, uniqueScreensCount) {
+    if (!config) return null;
+    
+    // Calculate capture time per screen using the formula: (waitingTime * maxAmountToScroll / scrollLength) + waitBeforeCapture
+    let captureTimeMs = config.waitBeforeCapture;
+    
+    if (config.lazyLoad) {
+        const lazyLoadTime = (config.lazyLoad.waitingTime * config.lazyLoad.maxAmountToScroll) / config.lazyLoad.scrollLength;
+        captureTimeMs += lazyLoadTime;
+    }
+    
+    const captureTimeSeconds = captureTimeMs / 1000;
+    const screensCount = uniqueScreensCount || 1;
+    const totalTimePerTestSeconds = captureTimeSeconds * screensCount;
+    const totalTimePerTestMinutes = totalTimePerTestSeconds / 60;
+    
+    return {
+        captureTimeMs,
+        captureTimeSeconds: Math.round(captureTimeSeconds * 100) / 100,
+        screensCount,
+        totalTimePerTestSeconds: Math.round(totalTimePerTestSeconds * 100) / 100,
+        totalTimePerTestMinutes: Math.round(totalTimePerTestMinutes * 100) / 100,
+        concurrency: config.concurrency
+    };
+  }
+
+  function getPerformanceWarningLevel(totalTimeMinutes) {
+    if (totalTimeMinutes > 5) return 'error'; // Red for >5 minutes
+    if (totalTimeMinutes > 2) return 'warning'; // Yellow for >2 minutes
+    return 'success'; // Green for optimized
+  }
+
+  const PerformanceConfigAnalyzer = ({data}) => {
+    const result = extractAllPerformanceConfigs(data);
+    const variations = analyzeConfigurationVariations(result.configs);
+    
+    if (!result.configs.length || !variations) {
+        return (
+            <div className="performance-analyzer">
+                <h1>Potential Check Settings Issues</h1>
+                <p>No performance configuration data found in logs.</p>
+            </div>
+        );
+    }
+    
+    // Calculate metrics for the most common configuration or first one
+    const primaryConfig = result.configs[0];
+    const metrics = calculatePerformanceMetrics(primaryConfig, variations.uniqueScreens);
+    
+    return (
+        <div className="performance-analyzer">
+            <h1>Potential Check Settings Issues</h1>
+            
+            <div className="performance-summary info">
+                <h2>Configuration Analysis ({result.totalCheckOperations} check operations)</h2>
+                {metrics && (
+                    <div className="metric-grid">
+                        <div className="metric">
+                            <label>Total Calculated Time ({metrics.screensCount} screens):</label>
+                            <span>{metrics.totalTimePerTestSeconds}s ({metrics.totalTimePerTestMinutes.toFixed(2)} min)</span>
+                        </div>
+                        <div className="metric">
+                            <label>Configurations Found:</label>
+                            <span>{variations.uniqueConfigurations} unique configurations</span>
+                        </div>
+                        <div className="metric">
+                            <label>Total Check Operations:</label>
+                            <span>{result.totalCheckOperations}</span>
+                        </div>
+                    </div>
+                )}
+                
+                <div className="educational-note">
+                    <h3>📚 Understanding These Numbers</h3>
+                    <p>
+                        This analysis is based on <strong>{variations.totalConfigurations} configuration settings</strong> found in your logs. 
+                        Actual test times vary significantly based on page content and scroll requirements.
+                    </p>
+                    <p>
+                        The purpose is to help identify configuration settings that <em>could potentially</em> cause performance issues:
+                    </p>
+                    <ul>
+                        <li><strong>Lazy Loading</strong>: High waitingTime × maxAmountToScroll values can significantly increase processing time</li>
+                        <li><strong>Layout Breakpoints</strong>: When enabled, adds additional processing overhead per environment</li>
+                        <li><strong>Multiple Environments</strong>: Processing time scales linearly with environment count</li>
+                    </ul>
+                </div>
+                
+                {/* Settings Warnings */}
+                {(() => {
+                    const warnings = [];
+                    if (primaryConfig.useDom === false) {
+                        warnings.push("useDom is set to false");
+                    }
+                    if (primaryConfig.enablePatterns === false) {
+                        warnings.push("enablePatterns is set to false - pattern recognition features are disabled");
+                    }
+                    if (primaryConfig.ignoreDisplacements === true) {
+                        warnings.push("ignoreDisplacements is set to true - can slow down performance");
+                    }
+                    if (primaryConfig.hooks && typeof primaryConfig.hooks === 'object' && Object.keys(primaryConfig.hooks).length > 0) {
+                        warnings.push("Custom hooks are configured - ensure it's needed");
+                    }
+                    
+                    return warnings.length > 0 ? (
+                        <div className="warning-message warning">
+                            <h3>⚠️ Settings Warnings</h3>
+                            <ul>
+                                {warnings.map((warning, idx) => (
+                                    <li key={idx}>{warning}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    ) : null;
+                })()}
+                
+                {/* Browser Fetching Information */}
+                <div className="warning-message success">
+                    <h3>ℹ️ Browser Fetching Status</h3>
+                    <p>
+                        <strong>disableBrowserFetching:</strong> {
+                            primaryConfig.disableBrowserFetching === true ? 'ON (browser fetching is disabled)' : 
+                            primaryConfig.disableBrowserFetching === false ? 'OFF (browser fetching is enabled)' :
+                            'Not specified (using default behavior)'
+                        }
+                    </p>
+                </div>
+            </div>
+            
+            <div className="config-details">
+                <h2>Configuration Details</h2>
+                
+                <div className="config-section">
+                    <h3>
+                        Lazy Loading Configuration 
+                        {Object.keys(variations.lazyLoadGroups).length === 1 
+                            ? ` (same for ${variations.totalConfigurations} check operations)`
+                            : ` (${Object.keys(variations.lazyLoadGroups).length} configurations found for ${variations.totalConfigurations} check operations)`
+                        }
+                    </h3>
+                    {Object.entries(variations.lazyLoadGroups).map(([key, group]) => (
+                        <div key={key} style={{marginBottom: '15px', padding: '10px', background: '#f9f9f9', borderRadius: '4px'}}>
+                            {group.config ? (
+                                <>
+                                    <div style={{fontWeight: 'bold', marginBottom: '8px'}}>
+                                        Configuration used {group.count} times:
+                                    </div>
+                                    <ul>
+                                        <li>Scroll Length: {group.config.scrollLength}px</li>
+                                        <li>Waiting Time: {group.config.waitingTime}ms</li>
+                                        <li>Max Amount to Scroll: {group.config.maxAmountToScroll}px</li>
+                                        <li>Calculated lazy load time: {((group.config.waitingTime * group.config.maxAmountToScroll) / group.config.scrollLength / 1000).toFixed(2)}s</li>
+                                    </ul>
+                                </>
+                            ) : (
+                                <div><strong>No lazy loading</strong> ({group.count} times)</div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+                
+                <div className="config-section">
+                    <h3>
+                        Wait Before Capture 
+                        {Object.keys(variations.waitBeforeCaptureGroups).length === 1 
+                            ? ` (same for all operations)`
+                            : ` (${Object.keys(variations.waitBeforeCaptureGroups).length} different values)`
+                        }
+                    </h3>
+                    <ul>
+                        {Object.entries(variations.waitBeforeCaptureGroups).map(([key, group]) => (
+                            <li key={key}>{group.value}ms ({group.count} times)</li>
+                        ))}
+                    </ul>
+                </div>
+                
+                <div className="config-section">
+                    <h3>
+                        Layout Breakpoints 
+                        {Object.keys(variations.layoutBreakpointsGroups).length === 1 
+                            ? ` (same for all operations)`
+                            : ` (mixed configuration)`
+                        }
+                    </h3>
+                    <ul>
+                        {Object.entries(variations.layoutBreakpointsGroups).map(([key, group]) => (
+                            <li key={key}>
+                                {group.enabled ? 'Enabled' : 'Disabled'} ({group.count} times)
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                
+                <div className="config-section">
+                    <h3>
+                        Test Environments 
+                        {Object.keys(variations.environmentGroups).length === 1 
+                            ? ` (same count for all operations)`
+                            : ` (${Object.keys(variations.environmentGroups).length} different counts)`
+                        }
+                    </h3>
+                    <ul>
+                        {Object.entries(variations.environmentGroups).map(([key, group]) => (
+                            <li key={key}>{group.count} environments ({group.occurrences} times)</li>
+                        ))}
+                    </ul>
+                    {primaryConfig.environments && primaryConfig.environments.length > 0 && (
+                        <div style={{marginTop: '10px'}}>
+                            <strong>All environments:</strong>
+                            <div className="environments-grid" style={{marginTop: '8px'}}>
+                                {primaryConfig.environments.map((env, index) => (
+                                    <div key={index} className="environment">
+                                        {env.name ? 
+                                            `${env.name} (${env.width}x${env.height})` : 
+                                            env.chromeEmulationInfo ? 
+                                                `Chrome: ${env.chromeEmulationInfo.deviceName} (${env.chromeEmulationInfo.screenOrientation || 'portrait'})` :
+                                            env.iosDeviceInfo ? 
+                                                `iOS: ${env.iosDeviceInfo.deviceName}${env.iosDeviceInfo.version ? ` ${env.iosDeviceInfo.version}` : ''} (${env.iosDeviceInfo.screenOrientation || 'portrait'})` :
+                                            env.androidDeviceInfo ? 
+                                                `Android: ${env.androidDeviceInfo.deviceName}${env.androidDeviceInfo.version ? ` ${env.androidDeviceInfo.version}` : ''} (${env.androidDeviceInfo.screenOrientation || 'portrait'})` :
+                                                'Unknown environment'
+                                        }
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+  };
+
+  ///////////////////////////     end performance config analyzer            //////////////////////////////////////////
+  
+  ///////////////////////////     start performance analysis engine  //////////////////////////////////////////
+  
+  function analyzePerformance(timingData, expectedConfig = {}) {
+    const analysis = {
+      isSlowTest: timingData.total > (expectedConfig?.maxTime || 60000),
+      anomalies: detectAnomalies(timingData),
+      recommendations: generateRecommendations(timingData)
+    }
+    
+    return analysis
+  }
+
+
+  function detectAnomalies(timing) {
+    const anomalies = []
+    
+    // Check for unusually long phases
+    Object.entries(timing.phases).forEach(([phaseName, phaseData]) => {
+      if (phaseData && phaseData.length > 0) {
+        phaseData.forEach(phase => {
+          // Detect phases taking more than 30 seconds
+          if (phase.duration > 30000) {
+            anomalies.push({
+              type: 'long-duration',
+              phase: phaseName,
+              duration: phase.duration,
+              name: phase.name,
+              severity: phase.duration > 120000 ? 'critical' : 'warning'
+            })
+          }
+          
+          // Detect error conditions
+          if (phase.hasError) {
+            anomalies.push({
+              type: 'error',
+              phase: phaseName,
+              name: phase.name,
+              severity: 'error'
+            })
+          }
+        })
+      }
+    })
+    
+    // Check for excessive network operations
+    if (timing.network && timing.network.length > 50) {
+      anomalies.push({
+        type: 'excessive-requests',
+        count: timing.network.length,
+        severity: 'warning'
+      })
+    }
+    
+    return anomalies
+  }
+
+
+
+  function generateRecommendations(timing) {
+    const recommendations = []
+    
+    // Check total test time
+    if (timing.total > 300000) { // 5 minutes
+      recommendations.push({
+        type: 'performance',
+        message: 'Test execution time exceeds 5 minutes.',
+        priority: 'high'
+      })
+    }
+    
+    // Check for serial execution patterns
+    const checkPhases = timing.phases.check || []
+    if (checkPhases.length > 10) {
+      recommendations.push({
+        type: 'parallelization',
+        message: `${checkPhases.length} check operations detected. Consider parallel execution.`,
+        priority: 'medium'
+      })
+    }
+    
+    // Check network efficiency
+    if (timing.network.length > 20) {
+      const avgNetworkTime = timing.network.reduce((sum, op) => sum + op.duration, 0) / timing.network.length
+      if (avgNetworkTime > 5000) { // 5 seconds average
+        recommendations.push({
+          type: 'network',
+          message: 'High network latency detected. Consider connection optimization.',
+          priority: 'medium'
+        })
+      }
+    }
+    
+    return recommendations
+  }
+  
+  ///////////////////////////     end performance analysis engine    //////////////////////////////////////////
   ///////////////////////////        start test list             //////////////////////////////////////////
 
     const TestList = ({data}) => {
         const [sortBy, setSortBy] = React.useState("time")
+        const [currentPage, setCurrentPage] = React.useState(1)
+        const [testsPerPage] = React.useState(3)
+        
         const by = cretirea => (test1, test2) => {
             try {
                 return test1[1][cretirea] - test2[1][cretirea]
@@ -256,8 +1304,16 @@
         }
         const classicTests = searchObjects(data, "eyes-classic").sort(by(sortBy))
         const ufgTests = searchObjects(data, "eyes-ufg").sort(by(sortBy))
+        
+        // Paginate UFG tests (most common)
+        const totalTests = ufgTests.length
+        const totalPages = Math.ceil(totalTests / testsPerPage)
+        const startIndex = (currentPage - 1) * testsPerPage
+        const paginatedUfgTests = ufgTests.slice(startIndex, startIndex + testsPerPage)
+        
         const handleSortChange = (event) => {
             setSortBy(event.target.value);
+            setCurrentPage(1); // Reset to first page when sorting changes
         };
         return <div className="test-list classic">
             <h1>Test List</h1>
@@ -271,7 +1327,7 @@
             <div className="test-container">
                 {
                     classicTests.map(test => <div className={`test ${test.hasError ? "error" : ""}`} key={test[0]}>
-                        <h3>{test[0]}</h3>
+                        <h3>{extractTestDisplayName(test[0], test[1])}</h3>
                         <TestInsights data={test[1]}/>
                     </div>)
                 }
@@ -279,19 +1335,217 @@
             {classicTests.length ? null : <div>
                 <h3>No Classic tests found</h3>
             </div>}
-            <h2> Eyes UFG Tests </h2>
-            <div className="test-container">
-                {
-                    ufgTests.map(test => <div className={`test ${test.hasError ? "error" : ""}`} key={test[0]}>
-                        <h3>{test[0]}</h3>
-                        <TestInsights data={test[1]}/>
-                    </div>)
-                }
-            </div>
-            {ufgTests.length ? null : <div>
-                <h3>No UFG tests found</h3>
-            </div>}
+            <h2> Eyes UFG Tests ({totalTests} total) </h2>
+            {totalTests > 0 ? (
+                <>
+                    <div className="pagination-info">
+                        Page {currentPage} of {totalPages} (showing {paginatedUfgTests.length} of {totalTests} tests)
+                    </div>
+                    <div className="pagination-controls" style={{margin: '10px 0'}}>
+                        <button 
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                            style={{marginRight: '10px'}}
+                        >
+                            Previous
+                        </button>
+                        <span>Page {currentPage} of {totalPages}</span>
+                        <button 
+                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            style={{marginLeft: '10px'}}
+                        >
+                            Next
+                        </button>
+                    </div>
+                    <div className="test-container">
+                        {paginatedUfgTests.map(test => (
+                            <div className={`test ${test.hasError ? "error" : ""}`} key={test[0]}>
+                                <h3>{extractTestDisplayName(test[0], test[1])}</h3>
+                                <TestInsights data={test[1]}/>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            ) : (
+                <div><h3>No UFG tests found</h3></div>
+            )}
         </div>;
+    }
+
+    const TimeAnalysisPanel = ({data}) => {
+        const allTests = [...searchObjects(data, "eyes-classic"), ...searchObjects(data, "eyes-ufg")]
+        const timingStats = calculateTimingStatistics(allTests)
+        
+        return (
+            <div className="time-analysis-panel">
+                <h2>Performance Overview</h2>
+                <TimingStatistics stats={timingStats} />
+                <PerformanceDistribution tests={allTests} />
+                <SlowTestHighlights tests={allTests.filter(t => {
+                    const analysis = analyzePerformance(extractTimingData(t[1]))
+                    return analysis.isSlowTest
+                })} />
+            </div>
+        )
+    }
+    
+    function calculateTimingStatistics(tests) {
+        if (!tests || tests.length === 0) {
+            return {
+                totalTests: 0,
+                averageTime: 0,
+                fastestTest: null,
+                slowestTest: null,
+                totalTime: 0,
+                slowTests: 0
+            }
+        }
+        
+        const testTimes = tests
+            .map(test => ({ 
+                key: test[0], 
+                time: test[1]?.time || 0, 
+                data: test[1],
+                displayName: extractTestDisplayName(test[0], test[1])
+            }))
+            .filter(test => test.time > 0)
+        
+        if (testTimes.length === 0) return { totalTests: 0, averageTime: 0 }
+        
+        const totalTime = testTimes.reduce((sum, test) => sum + test.time, 0)
+        const averageTime = totalTime / testTimes.length
+        const fastestTest = testTimes.reduce((fastest, test) => test.time < fastest.time ? test : fastest)
+        const slowestTest = testTimes.reduce((slowest, test) => test.time > slowest.time ? test : slowest)
+        const slowTests = testTimes.filter(test => test.time > 60000).length // More than 1 minute
+        
+        return {
+            totalTests: testTimes.length,
+            averageTime: Math.round(averageTime),
+            fastestTest,
+            slowestTest,
+            totalTime,
+            slowTests
+        }
+    }
+    
+    function TimingStatistics({stats}) {
+        return (
+            <div className="timing-statistics">
+                <h3>Test Statistics</h3>
+                <div className="stats-grid">
+                    <div className="stat-card">
+                        <h4>Total Tests</h4>
+                        <div className="stat-value">{stats.totalTests}</div>
+                    </div>
+                    <div className="stat-card">
+                        <h4>Average Time</h4>
+                        <div className="stat-value">{(stats.averageTime / 1000).toFixed(1)}s</div>
+                    </div>
+                    <div className="stat-card">
+                        <h4>Total Time</h4>
+                        <div className="stat-value">{(stats.totalTime / 1000).toFixed(0)}s</div>
+                    </div>
+                    <div className="stat-card">
+                        <h4>Slow Tests</h4>
+                        <div className={`stat-value ${stats.slowTests > 0 ? 'warning' : ''}`}>
+                            {stats.slowTests}
+                        </div>
+                    </div>
+                </div>
+                
+                {stats.fastestTest && stats.slowestTest && (
+                    <div className="extreme-tests">
+                        <div className="fastest-test">
+                            <h5>Fastest Test</h5>
+                            <div>{stats.fastestTest.displayName}: {(stats.fastestTest.time / 1000).toFixed(2)}s</div>
+                        </div>
+                        <div className="slowest-test">
+                            <h5>Slowest Test</h5>
+                            <div>{stats.slowestTest.displayName}: {(stats.slowestTest.time / 1000).toFixed(2)}s</div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        )
+    }
+    
+    function PerformanceDistribution({tests}) {
+        if (!tests || tests.length === 0) return null
+        
+        const timeBuckets = {
+            fast: 0,    // < 10s
+            normal: 0,  // 10s - 60s
+            slow: 0,    // 60s - 300s (5 min)
+            critical: 0 // > 300s (5 min)
+        }
+        
+        tests.forEach(test => {
+            const time = test[1]?.time || 0
+            if (time < 10000) timeBuckets.fast++
+            else if (time < 60000) timeBuckets.normal++
+            else if (time < 300000) timeBuckets.slow++
+            else timeBuckets.critical++
+        })
+        
+        const total = tests.length
+        
+        return (
+            <div className="performance-distribution">
+                <h3>Performance Distribution</h3>
+                <div className="distribution-chart">
+                    <div className="bucket fast">
+                        <div className="bucket-label">Fast (&lt;10s)</div>
+                        <div className="bucket-bar" style={{width: `${(timeBuckets.fast / total) * 100}%`}}></div>
+                        <div className="bucket-count">{timeBuckets.fast}</div>
+                    </div>
+                    <div className="bucket normal">
+                        <div className="bucket-label">Normal (10s-60s)</div>
+                        <div className="bucket-bar" style={{width: `${(timeBuckets.normal / total) * 100}%`}}></div>
+                        <div className="bucket-count">{timeBuckets.normal}</div>
+                    </div>
+                    <div className="bucket slow">
+                        <div className="bucket-label">Slow (60s-300s)</div>
+                        <div className="bucket-bar" style={{width: `${(timeBuckets.slow / total) * 100}%`}}></div>
+                        <div className="bucket-count">{timeBuckets.slow}</div>
+                    </div>
+                    <div className="bucket critical">
+                        <div className="bucket-label">Critical (&gt;300s)</div>
+                        <div className="bucket-bar" style={{width: `${(timeBuckets.critical / total) * 100}%`}}></div>
+                        <div className="bucket-count">{timeBuckets.critical}</div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+    
+    function SlowTestHighlights({tests}) {
+        if (!tests || tests.length === 0) return null
+        
+        // Sort tests by duration (slowest first) and take only top 4
+        const sortedTests = tests
+            .map(test => ({
+                key: test[0],
+                data: test[1],
+                duration: test[1]?.time || 0,
+                displayName: extractTestDisplayName(test[0], test[1])
+            }))
+            .sort((a, b) => b.duration - a.duration)
+            .slice(0, 4);
+        
+        return (
+            <div className="slow-test-highlights">
+                <h3>Top 4 Slowest Tests</h3>
+                <div className="slow-tests-list">
+                    {sortedTests.map((test, idx) => (
+                        <div key={idx} className="slow-test-card">
+                            <div className="test-name">{test.displayName}</div>
+                            <div className="test-time">{(test.duration / 1000).toFixed(2)}s</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )
     }
 
     function TestInsights({data}) {
@@ -305,20 +1559,83 @@
         const hasClose = searchObjects(data, "close-base")
         const hasGetEyesResults = searchObjects(data, "get-eyes-results")
         
+        // Enhanced timing analysis
+        const timingData = extractTimingData(data)
+        const analysis = analyzePerformance(timingData)
+        
         return <div className="test-insights">
-            <ul>
-                <li>Time: {time} seconds</li>
-                <li>Started at: {start}</li>
-                <li>Has Get Account: {hasGetAccount.length} {hasGetAccount.hasError ? <div className="error">Error in Get Account</div> : null}</li>
-                <li>Has Open Eyes Log: {hasOpenEyesLog}</li>
-                <li>Has Base Open Eyes Log: {hasBaseOpenEyesLog}</li>
-                <li>Has Taking Dom Snapshot Logs: {hasTakingDomSnapshotLogs}</li>
-                <li>Has Check: {hasCheck.length} {hasCheck.hasError ? <div className="error">Error in Check</div> : null}</li>
-                <li>Has Close: {hasClose.length} {hasClose.hasError ? <div className="error">Error in Close</div> : null}</li>
-                <li>Has Get Eyes Results: {hasGetEyesResults.length} {hasGetEyesResults.hasError ? <div className="error">Error in Get Eyes Results</div> : null}</li>
-            </ul>
+            {/* Existing basic insights */}
+            <div className="basic-insights">
+                <h4>Basic Information</h4>
+                <ul>
+                    <li>Time: {time} seconds</li>
+                    <li>Started at: {start}</li>
+                    <li>Has Get Account: {hasGetAccount.length} {hasGetAccount.hasError ? <div className="error">Error in Get Account</div> : null}</li>
+                    <li>Has Open Eyes Log: {hasOpenEyesLog}</li>
+                    <li>Has Base Open Eyes Log: {hasBaseOpenEyesLog}</li>
+                    <li>Has Taking Dom Snapshot Logs: {hasTakingDomSnapshotLogs}</li>
+                    <li>Has Check: {hasCheck.length} {hasCheck.hasError ? <div className="error">Error in Check</div> : null}</li>
+                    <li>Has Close: {hasClose.length} {hasClose.hasError ? <div className="error">Error in Close</div> : null}</li>
+                    <li>Has Get Eyes Results: {hasGetEyesResults.length} {hasGetEyesResults.hasError ? <div className="error">Error in Get Eyes Results</div> : null}</li>
+                </ul>
+            </div>
+            
         </div>;
     }
+    
+    function PhaseBreakdown({phases}) {
+        return (
+            <div className="phase-breakdown">
+                <h5>Phase Breakdown</h5>
+                <div className="phases-grid">
+                    {Object.entries(phases).map(([phaseName, phaseData]) => {
+                        if (!phaseData || phaseData.length === 0) return null
+                        
+                        const totalTime = phaseData.reduce((sum, phase) => sum + phase.duration, 0)
+                        const count = phaseData.length
+                        const hasErrors = phaseData.some(phase => phase.hasError)
+                        
+                        return (
+                            <div key={phaseName} className={`phase-card ${hasErrors ? 'error' : ''}`}>
+                                <div className="phase-name">{phaseName}</div>
+                                <div className="phase-stats">
+                                    <div>Time: {(totalTime / 1000).toFixed(2)}s</div>
+                                    <div>Count: {count}</div>
+                                    {hasErrors && <div className="error">Has Errors</div>}
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+        )
+    }
+    
+    function PerformanceWarnings({analysis}) {
+        if (!analysis.anomalies || analysis.anomalies.length === 0) return null
+        
+        return (
+            <div className="performance-warnings">
+                <h5>Performance Warnings</h5>
+                <ul>
+                    {analysis.anomalies.map((anomaly, idx) => (
+                        <li key={idx} className={`warning ${anomaly.severity}`}>
+                            {anomaly.type === 'long-duration' && (
+                                <span>Long duration in {anomaly.phase}: {(anomaly.duration / 1000).toFixed(2)}s</span>
+                            )}
+                            {anomaly.type === 'error' && (
+                                <span>Error in {anomaly.phase}: {anomaly.name}</span>
+                            )}
+                            {anomaly.type === 'excessive-requests' && (
+                                <span>Excessive network requests: {anomaly.count}</span>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        )
+    }
+    
 
     function searchLogs(data, needle) {
         if(typeof data === "object") {
@@ -397,11 +1714,27 @@
   const root = ReactDOM.createRoot(document.getElementById("logsViewerApp"))
   function startApp(data) {
     root.render(<>
-        <LogsContainer data={data}/>
-        <LogData data={data}/>
-        <TestList data={data}/>
-        <RenderTargetsAnalizer data={data}/>
-        <ErrorsList data={data}/>
+        <CollapsibleSection title="Logs Overview" defaultCollapsed={true}>
+            <LogsContainer data={data}/>
+        </CollapsibleSection>
+        <CollapsibleSection title="General Information" defaultCollapsed={true}>
+          <LogData data={data}/>
+        </CollapsibleSection>
+        <CollapsibleSection title="Potential Check Settings Issues" defaultCollapsed={true}>
+          <PerformanceConfigAnalyzer data={data}/>
+        </CollapsibleSection>
+        <CollapsibleSection title="Time Analysis Overview" defaultCollapsed={true}>
+          <TimeAnalysisPanel data={data}/>
+        </CollapsibleSection>
+        <CollapsibleSection title="Test Details" defaultCollapsed={false}>
+          <TestList data={data}/>
+        </CollapsibleSection>
+        <CollapsibleSection title="Render Targets Analysis" defaultCollapsed={true}>
+          <RenderTargetsAnalizer data={data}/>
+        </CollapsibleSection>
+        <CollapsibleSection title="Errors List" defaultCollapsed={true}>
+          <ErrorsList data={data}/>
+        </CollapsibleSection>
     </>);
   }
 
