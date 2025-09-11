@@ -59,11 +59,16 @@
         const file = files[0];
         const reader = new FileReader();
 
-        reader.onload = function (event) {
-            const contents = event.target.result;
-            const result = contents
+        reader.onloadend = function loadend(event) {
+            if(event.target.result) {
+                const contents = event.target.result;
+                const result = contents
 
-            process({ data: result, filename: file.name });
+                process({ data: result, filename: file.name });
+            } else {
+                console.error('Failed to read file');
+                event.target.onloadend = loadend
+            }
         }
         reader.readAsText(file);
     }
@@ -73,8 +78,9 @@
             // remove lines starting with "background.js", because this prefix is added by the browser on browser extension logs
             .map(s=>s.replace(/^background\.js:\d+ /, '').trim())
             // remove lines starting with `[2024-12-16T18:59:20.847Z] ` because this timestamp is added by CI tools like Jenkins
-            .map(s=>s.replace(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] /, '').trim())
+            .map(s=>s.replace(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]/, '').trim())
         .join('\n'))
+        debugger
         const structured = structureLogs(logs)
         const analyzed = exports.analyzeLogs(structureLogs(logs))
         document.getElementById('file-name').innerText = filename;
