@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://applitools.github.io/demo/schemas/config-file.schema.json",
+  "additionalProperties": false,
+  "title": "Applitools Configuration File Schema",
+  "description": "Applitools Configuration File Schema",
+  "type": "object",
+  "properties": {
+    "accessibilityValidation": { "type": "object" },
+    "agentId": { "type": "string" },
+    "apiKey": { "type": "string" },
+    "appName": { "type": "string" },
+    "autProxy": { "type": "object" },
+    "baselineBranchName": { "type": "string" },
+    "baselineEnvName": { "type": "string" },
+    "batch": { "type": "object" },
+    "branchName": { "type": "string" },
+    "browsersInfo": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "captureStatusBar": { "type": "boolean" },
+    "compareWithParentBranch": { "type": "boolean" },
+    "concurrentSessions": { "type": "number" },
+    "connectionTimeout": { "type": "number" },
+    "cut": { "type": "object" },
+    "debugScreenshots": { "type": "object" },
+    "defaultMatchSettings": { "type": "object" },
+    "deviceInfo": { "type": "string" },
+    "disableBrowserFetching": { "type": "boolean" },
+    "disableNMLUrlCache": { "type": "boolean" },
+    "displayName": { "type": "string" },
+    "dontCloseBatches": { "type": "boolean" },
+    "enablePatterns": { "type": "boolean" },
+    "environmentName": { "type": "string" },
+    "forceFullPageScreenshot": { "type": "boolean" },
+    "fully": { "type": "boolean" },
+    "gitMergeBaseTimestamp": { "type": "string" },
+    "latestCommitInfo": { "type": "object" },
+    "hideCaret": { "type": "boolean" },
+    "hideScrollbars": { "type": "boolean" },
+    "hostApp": { "type": "string" },
+    "hostAppInfo": { "type": "string" },
+    "hostOS": { "type": "string" },
+    "hostOSInfo": { "type": "string" },
+    "ignoreBaseline": { "type": "boolean" },
+    "ignoreCaret": { "type": "boolean" },
+    "ignoreDisplacements": { "type": "boolean" },
+    "ignoreGitMergeBase": { "type": "boolean" },
+    "isDisabled": { "type": "boolean" },
+    "layoutBreakpoints": {
+      "anyOf": [
+        { "type": "boolean" },
+        {
+          "type": "array",
+          "items": { "type": "number" }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "breakpoints": {
+              "anyOf": [
+                { "type": "boolean" },
+                {
+                  "type": "array",
+                  "items": { "type": "number" }
+                }
+              ]
+            },
+            "reload": { "type": "boolean" }
+          }
+        }
+      ]
+    },
+    "matchLevel": { "type": "string" },
+    "matchTimeout": { "type": "number" },
+    "mobileOptions": {
+      "type": "object",
+      "properties": {
+        "keepNavigationBar": { "type": "boolean" }
+      }
+    },
+    "parentBranchName": { "type": "string" },
+    "properties": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "proxy": { "type": "object" },
+    "removeSession": { "type": "boolean" },
+    "rotation": { "type": "object" },
+    "saveDiffs": { "type": "boolean" },
+    "saveFailedTests": { "type": "boolean" },
+    "saveNewTests": { "type": "boolean" },
+    "scaleRatio": { "type": "number" },
+    "scrollRootElement": {
+      "anyOf": [
+        { "type": "object" },
+        { "type": "string" }
+      ]
+    },
+    "sendDom": { "type": "boolean" },
+    "serverUrl": { "type": "string" },
+    "sessionType": { "type": "string" },
+    "stitchMode": { "type": "string" },
+    "stitchOverlap": { "type": "number" },
+    "testName": { "type": "string" },
+    "useDom": { "type": "boolean" },
+    "viewportSize": { "type": "object" },
+    "visualGridOptions": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "waitBeforeCapture": {
+      "anyOf": [
+        { "type": "number" },
+        { "type": "string" }
+      ]
+    },
+    "waitBeforeScreenshots": { "type": "number" }
+  }
+}
