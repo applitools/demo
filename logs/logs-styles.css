@@ -327,6 +327,21 @@
     border-radius: 10px;
 }
 
+/* Make details elements display side by side */
+.details-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.details-wrapper details {
+    min-width: 300px;
+    flex-shrink: 0;
+}
+
 .logs-container .kids {
     display: flex;
 }
@@ -351,4 +366,81 @@
 
 .test-container .test {
     border: 1px solid lightgray;
+}
+
+/* Logs Viewer Controls and Container Styles */
+.logs-viewer-controls {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.toggle-logs-viewer-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.toggle-logs-viewer-btn:hover {
+    background-color: #0056b3;
+}
+
+.toggle-logs-viewer-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.logs-viewer-container {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+/* Side-by-side layout for collapsible sections */
+.logs-sections-grid {
+    /* display: grid; */
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+/* Responsive layout - stack on smaller screens */
+@media (max-width: 1200px) {
+    .logs-sections-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Enhanced collapsible section styling */
+.collapsible-section {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.collapsible-header {
+    background: #f8f9fa;
+    padding: 12px 16px;
+    margin: 0;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 6px 6px 0 0;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+.collapsible-header:hover {
+    background: #e9ecef;
+}
+
+.collapsible-content {
+    padding: 16px;
 }
