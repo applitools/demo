@@ -1,0 +1,36 @@
+<html>
+  <body>
+    <p>Testing waitBeforeCapture (image delayed by: <span id='delay'></span> ms)</p>
+    <script>
+      const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+      });
+      const delay = parseInt(params.delay || '1000'); 
+      function attachElement(){
+        document.getElementById('delay').innerText = delay;
+        setTimeout(() => {
+          // adding the first image only once
+          if(document.getElementById('my_image'))
+            return
+          const newImage = document.createElement('img');
+          newImage.setAttribute('id', 'my_image');
+          newImage.src = './smurfs.jpg'
+          document.body.appendChild(newImage);
+
+          // Add second image 1000px lower after 2x delay
+          setTimeout(() => {
+            const secondImage = document.createElement('img');
+            secondImage.setAttribute('id', 'second_image');
+            secondImage.src = './smurfs.jpg';
+            secondImage.style.marginTop = '1000px';
+            document.body.appendChild(secondImage);
+
+            // Scroll to second image
+            secondImage.scrollIntoView({behavior: 'auto'});
+          }, delay * 2);
+        }, delay)
+      }
+      attachElement()
+    </script>	
+  </body>
+</html>
