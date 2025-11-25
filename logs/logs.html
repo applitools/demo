@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log viewer</title>
-  <script type="module" crossorigin src="/demo/logs/assets/index-DfY5z7pz.js"></script>
+  <script type="module" crossorigin src="/demo/logs/assets/index-rJBNxjhf.js"></script>
   <link rel="stylesheet" crossorigin href="/demo/logs/assets/index-ChXEFNo5.css">
 </head>
 <body>
@@ -16,16 +16,12 @@
     <div class="container">
         <sidebar>
           <h2>Select a File</h2>
-          <div
-            id="drop-area"
-            ondrop="dropHandler(event);"
-            ondragover="dragOverHandler(event);"
-          >
+          <div id="drop-area">
             <p>
               Drag & drop a file here or <label for="file-input">click here</label> to
               select a file to upload.
             </p>
-            <input type="file" id="file-input" onchange="handleFile(this.files)" />
+            <input type="file" id="file-input" />
           </div>
         </sidebar>
         <main>
