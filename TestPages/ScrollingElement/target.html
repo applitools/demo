@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scrollable Target Test</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+        .container {
+            border: 5px solid blue;
+            padding: 10px;
+            margin: 20px;
+            width: 300px;
+        }
+
+        .content {
+            background: linear-gradient(to bottom, #ffcccc, #ccffcc);
+            height: 600px;
+            width: 100%;
+            position: relative;
+        }
+
+        .scrollable {
+            height: 200px;
+            overflow: auto;
+        }
+
+        .not-scrollable {
+            height: auto;
+            overflow: visible;
+        }
+        
+        .hidden-scroll {
+            height: 200px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <h1>Scrollable Target Test</h1>
+    <div id="controls">
+        <button id="btn-scrollable" onclick="setMode('scrollable')">Make Scrollable (overflow: auto)</button>
+        <button id="btn-not-scrollable" onclick="setMode('not-scrollable')">Make Not Scrollable (height: auto)</button>
+        <button id="btn-hidden" onclick="setMode('hidden-scroll')">Make Overflow Hidden</button>
+    </div>
+
+    <h3>Target Element (#target):</h3>
+    <div id="target" class="container scrollable">
+        <div class="content">
+            <p>Top of content</p>
+            <p style="position: absolute; top: 50%;">Middle of content</p>
+            <p style="position: absolute; bottom: 0;">Bottom of content</p>
+        </div>
+    </div>
+
+    <script>
+        function setMode(mode) {
+            const target = document.getElementById('target');
+            target.className = 'container ' + mode;
+            console.log('Changed mode to: ' + mode);
+        }
+    </script>
+</body>
+</html>
