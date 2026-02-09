@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nested Elements Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .box { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+        iframe { border: 1px solid blue; width: 100%; height: 200px; display: block; }
+    </style>
+</head>
+<body>
+    <h1>Nested Elements Test Page</h1>
+    <div id="root-element" class="box">I am a root element</div>
+
+    <!-- 1. Shadow DOM with nested element -->
+    <div id="shadow-host" class="box"></div>
+
+    <!-- 2. Iframe (Simple) -->
+    <iframe id="simple-iframe" class="box" srcdoc="
+        <!DOCTYPE html>
+        <html>
+            <body style='background: #f0f0f0; padding: 10px;'>
+                <div id='iframe-element'>I am in a simple iframe</div>
+            </body>
+        </html>
+    "></iframe>
+
+    <script>
+        // Setup Shadow DOM 1: Root -> Shadow -> Element & Root -> Shadow -> Iframe -> Element
+        const host = document.getElementById('shadow-host');
+        const shadow = host.attachShadow({mode: 'open'});
+        
+        const style = document.createElement('style');
+        style.textContent = '.shadow-box { border: 1px dashed red; padding: 10px; margin: 10px 0; background: #fff0f0; }';
+        shadow.appendChild(style);
+
+        const shadowDiv = document.createElement('div');
+        shadowDiv.id = 'shadow-element';
+        shadowDiv.className = 'shadow-box';
+        shadowDiv.textContent = 'I am in the shadow DOM';
+        shadow.appendChild(shadowDiv);
+
+        const iframeInShadow = document.createElement('iframe');
+        iframeInShadow.id = 'iframe-in-shadow';
+        iframeInShadow.className = 'shadow-box';
+        // Need to wait for append to document before writing to contentWindow? 
+        // Using srcdoc is safer for synchronous availability in some contexts, but let's try srcdoc
+        iframeInShadow.srcdoc = `
+            <!DOCTYPE html>
+            <html>
+            <body style='background: #e0ffe0; padding: 10px;'>
+                <div id='element-in-iframe-in-shadow'>I am in an iframe inside a shadow DOM</div>
+            </body>
+            </html>
+        `;
+        shadow.appendChild(iframeInShadow);
+    </script>
+
+    <!-- 3. Iframe containing Shadow DOM -->
+    <iframe id="iframe-with-shadow" class="box" srcdoc="
+        <!DOCTYPE html>
+        <html>
+        <body style='background: #e0e0ff; padding: 10px;'>
+            <div id='iframe-root-element'>I am in the iframe root</div>
+            <div id='iframe-shadow-host'></div>
+            <script>
+                const host = document.getElementById('iframe-shadow-host');
+                const shadow = host.attachShadow({mode: 'open'});
+                shadow.innerHTML = `<div id='element-in-shadow-in-iframe' style='border: 1px dashed green; padding: 10px; background: white;'>I am in a shadow DOM inside an iframe</div>`;
+            </script>
+        </body>
+        </html>
+    "></iframe>
+
+</body>
+</html>
