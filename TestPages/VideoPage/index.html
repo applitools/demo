@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Page Test</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .video-container {
+            max-width: 800px;
+            width: 100%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Sample Video Page</h1>
+
+    <div class="video-container">
+        <!-- Using "Sintel" - Open Movie by Blender Foundation -->
+        <video controls poster="https://media.w3.org/2010/05/sintel/poster.png">
+            <source src="https://media.w3.org/2010/05/sintel/trailer.mp4" type="video/mp4">
+            <source src="https://media.w3.org/2010/05/sintel/trailer.ogv" type="video/ogg">
+            <source src="https://media.w3.org/2010/05/sintel/trailer.webm" type="video/webm">
+            Your browser does not support the video tag.
+        </video>
+        <p>Sintel - Third Open Movie by Blender Foundation</p>
+    </div>
+
+</body>
+</html>
