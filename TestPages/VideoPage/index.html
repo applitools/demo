@@ -35,8 +35,8 @@
 
     <div class="video-container">
         <!-- Using "Sintel" - Open Movie by Blender Foundation -->
-        <!-- Removed crossorigin="anonymous" because w3.org does not provide CORS headers for this file -->
         <video 
+            crossorigin="anonymous" 
             class="cmp-video__video-player" 
             data-video-hook-player="" 
             tabindex="-1" 
@@ -48,17 +48,51 @@
             muted 
             aria-label="Sintel - Third Open Movie by Blender Foundation" 
             aria-description="The film follows a girl named Sintel who is searching for a baby dragon she calls Scales." 
-            data-video-name="sintel_trailer" 
+            data-video-name="poster_video_test" 
             data-video-srclang="en"
             controls 
-            poster="https://media.w3.org/2010/05/sintel/poster.png">
-            <source src="https://media.w3.org/2010/05/sintel/trailer.mp4" type="video/mp4">
-            <source src="https://media.w3.org/2010/05/sintel/trailer.ogv" type="video/ogg">
-            <source src="https://media.w3.org/2010/05/sintel/trailer.webm" type="video/webm">
+            id="video-player"
+            poster="https://test-streams.mux.dev/x36xhzz/poster.jpg">
+            <!-- This source matches what HLS.js is actually playing -->
+            <source src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8" type="application/x-mpegURL">
+            <!-- Fallback for browsers without HLS support (standard MP4) -->
+            <source src="https://test-streams.mux.dev/x36xhzz/url_0/193039199_mp4_h264_aac_ld_7.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-        <p>Sintel - Third Open Movie by Blender Foundation</p>
+        <p>Big Buck Bunny - Test Stream</p>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+    <script>
+        const video = document.getElementById('video-player');
+        
+        // Use a public test HLS stream URL (CORS enabled)
+        // This makes it work exactly like the screenshot: using a library to play a .m3u8 file
+        const videoSrc = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+
+        if (Hls.isSupported()) {
+            console.log("HLS is supported. Initializing Hls.js...");
+            const hls = new Hls();
+            
+            // This does the magic: fetches the stream and attaches it to the video element
+            // This usually results in a src="blob:..." on the video element in the DOM
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                console.log("Manifest parsed, starting playback");
+                video.play().catch(e => console.warn("Autoplay blocked, user interaction needed directly."));
+            });
+        }
+        // Fallback for Safari which supports HLS natively
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            console.log("Native HLS support (Safari) detected.");
+            video.src = videoSrc;
+            video.addEventListener('loadedmetadata', function() {
+                video.play();
+            });
+        }
+    </script>
 
 </body>
 </html>
