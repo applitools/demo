@@ -1,93 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Page Test</title>
+<html>
+  <head>
+    <title>Video HLS Fix — All Scenarios</title>
     <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        .video-container {
-            max-width: 800px;
-            width: 100%;
-            border: 1px solid #ccc;
-            padding: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        video {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        h1 {
-            color: #333;
-        }
+      body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
+      h1 { font-size: 18px; margin-bottom: 20px; }
+      section { margin-bottom: 24px; padding: 16px; background: #fff; border-radius: 8px; }
+      .label { font-size: 12px; color: #888; margin: 0 0 8px; }
+      video { background: #000; display: block; width: 480px; height: 270px; }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <h1>Video HLS Fix — All Scenarios</h1>
 
-    <h1>Sample Video Page</h1>
+    <!-- 1. blob src + SOURCE child (HLS) -->
+    <section id="s1">
+      <p class="label">1. blob src + SOURCE child (HLS)</p>
+      <video id="v1" autoplay muted controls playsinline>
+        <!-- source.src is set to the inlined m3u8 data URI by the script below -->
+        <source id="src1" type="application/x-mpegURL" />
+      </video>
+    </section>
 
-    <div class="video-container">
-        <!-- Using "Sintel" - Open Movie by Blender Foundation -->
-        <video 
-            crossorigin="anonymous" 
-            class="cmp-video__video-player" 
-            data-video-hook-player="" 
-            tabindex="-1" 
-            data-is-avs="true" 
-            loop 
-            autoplay 
-            preload="metadata" 
-            playsinline 
-            muted 
-            aria-label="Sintel - Third Open Movie by Blender Foundation" 
-            aria-description="The film follows a girl named Sintel who is searching for a baby dragon she calls Scales." 
-            data-video-name="poster_video_test" 
-            data-video-srclang="en"
-            controls 
-            id="video-player">
-            <!-- This source matches what HLS.js is actually playing -->
-            <source src="https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8">
-        </video>
-        <p>Big Buck Bunny - Test Stream</p>
-    </div>
+    <!-- 2. blob src, no SOURCE child -->
+    <section id="s2">
+      <p class="label">2. blob src, no SOURCE child</p>
+      <video id="v2" autoplay muted controls playsinline></video>
+    </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+    <!-- 3. empty video (no src, no source) -->
+    <section id="s3">
+      <p class="label">3. Empty video (no src, no source)</p>
+      <video id="v3" autoplay muted controls playsinline></video>
+    </section>
+
+    <!-- 4. regular HTTP src, no SOURCE child -->
+    <section id="s4">
+      <p class="label">4. Regular HTTP src, no SOURCE child</p>
+      <video
+        id="v4"
+        autoplay
+        muted
+        controls
+        playsinline
+        src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+      ></video>
+    </section>
+
+    <!-- 5. no src, with SOURCE child -->
+    <section id="s5">
+      <p class="label">5. No src, with SOURCE child</p>
+      <video id="v5" autoplay muted controls playsinline>
+        <source
+          src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+          type="video/mp4"
+        />
+      </video>
+    </section>
+
+    <!-- 6. regular src + SOURCE child -->
+    <section id="s6">
+      <p class="label">6. Regular src + SOURCE child</p>
+      <video
+        id="v6"
+        autoplay
+        muted
+        controls
+        playsinline
+        src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4"
+      >
+        <source
+          src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+          type="video/mp4"
+        />
+      </video>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
     <script>
-        const video = document.getElementById('video-player');
-        
-        // Use a public test HLS stream URL (CORS enabled)
-        const videoSrc = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+      // HLS playlist with absolute Apple CDN segment URLs.
+      // Inlined so this page is fully self-contained — no local server required.
+      var M3U8 = [
+        '#EXTM3U',
+        '#EXT-X-TARGETDURATION:10',
+        '#EXT-X-VERSION:3',
+        '#EXT-X-MEDIA-SEQUENCE:0',
+        '#EXT-X-PLAYLIST-TYPE:VOD',
+        '#EXTINF:9.97667,',
+        'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear1/fileSequence0.ts',
+        '#EXTINF:9.97667,',
+        'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear1/fileSequence1.ts',
+        '#EXT-X-ENDLIST',
+      ].join('\n')
 
-        if (Hls.isSupported()) {
-            console.log("HLS is supported. Initializing Hls.js...");
-            const hls = new Hls();
-            
-            // This does the magic: fetches the stream and attaches it to the video element
-            // This usually results in a src="blob:..." on the video element in the DOM
-            hls.loadSource(videoSrc);
-            hls.attachMedia(video);
-            
-            hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                console.log("Manifest parsed, starting playback");
-                video.play().catch(e => console.warn("Autoplay blocked, user interaction needed directly."));
-            });
-        }
-        // Fallback for Safari which supports HLS natively
-        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            console.log("Native HLS support (Safari) detected.");
-            video.src = videoSrc;
-            video.addEventListener('loadedmetadata', function() {
-                video.play();
-            });
-        }
+      // data: URI so hls.js can fetch the manifest without needing a server.
+      // Absolute segment URLs inside mean no relative-path resolution issues.
+      // var M3U8_URL = 'data:application/x-mpegURL;charset=utf-8,' + encodeURIComponent(M3U8)
+
+      // If serving via a web server, you can point directly to the file:
+      var M3U8_URL = 'manifest.m3u8';
+
+      function setupHls(video) {
+        if (typeof Hls === 'undefined' || !Hls.isSupported()) return
+        var hls = new Hls()
+        hls.loadSource(M3U8_URL)
+        hls.attachMedia(video)
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          video.play().catch(function () {})
+        })
+      }
+
+      // Scenario 1: source.src gets the data URI so the SOURCE child holds the "real" URL
+      // while hls.js still sets video.src = blob:... via MSE (the BMW pattern).
+      ;(function () {
+        document.getElementById('src1').src = M3U8_URL
+        setupHls(document.getElementById('v1'))
+      })()
+
+      // Scenario 2: hls.js loads directly — no <source> child exists in the DOM.
+      setupHls(document.getElementById('v2'))
     </script>
-
-</body>
+  </body>
 </html>
