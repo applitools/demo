@@ -1,40 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Log viewer</title>
-  <script type="module" crossorigin src="/demo/logs/assets/index-Dk81lfvI.js"></script>
-  <link rel="stylesheet" crossorigin href="/demo/logs/assets/index-DcljSOMJ.css">
-</head>
-<body>
-    <script>var exports = {};</script>
+    <script type="module" crossorigin src="/demo/logs/assets/index-Dk81lfvI.js"></script>
+    <link rel="stylesheet" crossorigin href="/demo/logs/assets/index-DcljSOMJ.css">
+  </head>
+  <body>
+    <script>
+      var exports = {};
+    </script>
     <script src="https://unpkg.com/@applitools/core@4.16.2/dist/troubleshoot/logs.js"></script>
-    
+
     <div id="logsViewerApp"></div>
 
     <div class="container">
-        <sidebar>
-          <h2>Select a File</h2>
-          <div id="drop-area">
-            <p>
-              Drag & drop a file here or <label for="file-input">click here</label> to
-              select a file to upload.
-            </p>
-            <input type="file" id="file-input" />
-          </div>
-        </sidebar>
-        <main>
-          <h1 id="file-name"></h1>
-          <hr />
-          <h2><label><input type="checkbox" id="logs">logs</label></h2>
-          <pre id="raw-logs"></pre>
-          <h2><label><input type="checkbox" id="analyzed">analyzed</label></h2>
-          <pre id="analyzed-logs"></pre>
-          <h2><label><input type="checkbox" id="structured">structured</h2>
-          <pre id="structured-logs"></pre>
-        </main>
+      <sidebar>
+        <h2>Select a File</h2>
+        <div id="drop-area">
+          <p>
+            Drag & drop a file here or <label for="file-input">click here</label> to select a file
+            to upload.
+          </p>
+          <input type="file" id="file-input" />
+        </div>
+      </sidebar>
+      <main>
+        <h1 id="file-name"></h1>
+        <hr />
+        <h2>
+          <label><input type="checkbox" id="logs" />logs</label>
+        </h2>
+        <pre id="raw-logs"></pre>
+        <h2>
+          <label><input type="checkbox" id="analyzed" />analyzed</label>
+        </h2>
+        <pre id="analyzed-logs"></pre>
+        <h2>
+          <label><input type="checkbox" id="structured" />structured</label>
+        </h2>
+        <pre id="structured-logs"></pre>
+      </main>
     </div>
 
-</body>
+  </body>
 </html>
