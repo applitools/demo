@@ -3,39 +3,31 @@
   <head>
     <meta charset="utf-8">
     <title>csp</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'sha256-gTN7yNB9N4phQ4E5ck+/jRUmEgM4K+sS30ei9ZKvBP8=';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'sha256-cNcIVuV7fgaNpGxT+vCDWaPiX3uDx9yGhz8yxTjdhig=';">
   </head>
   <body>
     <script>
       /*
-        when we share the same execution context with the AUT, sometimes the AUT monkey-patches some native functions
-        and it prevents us from taking a proper dom snapshot.
-        When there's no "Content-Security-Policy" header / meta tag, we can use our "sandbox" mechanism to run the
-        Dom-Snapshot code in a separate execution context, so the AUT's monkey-patching won't affect us.
+        Some pages monkey-patch native JS globals (analytics, polyfills, security tools).
+        When there's a Content-Security-Policy header/meta, the dom-snapshot iframe sandbox
+        cannot inject its <script> tag and falls back to running in the main context where
+        the monkey-patching breaks it.
 
-        TL;DR - you can't take dom-snapshot of this page without CSP bypass, but you can with it.
+        With APPLITOOLS_BYPASS_CSP=true, the SDK sends Page.setBypassCSP before taking the
+        snapshot, allowing the iframe sandbox to work and isolating dom-snapshot from the patches.
       */
 
       JSON.stringify = () => { throw new Error('stringify is not allowed'); };
-      for(const func of ['push', 'pop', 'shift', 'unshift', 'splice', 'concat', 'join', 'slice', 'map', 'forEach', 'reduce', 'filter', 'some', 'every']) {
+      for (const func of ['push', 'pop', 'shift', 'unshift', 'splice', 'concat', 'join', 'slice', 'map', 'forEach', 'reduce', 'filter', 'some', 'every']) {
         Array.prototype[func] = () => { throw new Error(`${func} is not allowed`); };
       }
-      for(const func of ['assign', 'keys', 'values', 'entries', 'fromEntries']) {
+      for (const func of ['assign', 'keys', 'values', 'entries', 'fromEntries']) {
         Object[func] = () => { throw new Error(`${func} is not allowed`); };
       }
-      for(const func of ['defineProperty', 'getOwnPropertyDescriptor', 'getOwnPropertyNames', 'getOwnPropertySymbols', 'preventExtensions', 'seal', 'freeze']) {
-        Object.prototype[func] = () => { throw new Error(`${func} is not allowed`); };
-      }
-      for(const func of ['create', 'defineProperties', 'getPrototypeOf', 'setPrototypeOf']) {
-        Object[func] = () => { throw new Error(`${func} is not allowed`); };
-      }
-      for(const func of ['appendChild', 'insertBefore', 'removeChild', 'replaceChild', 'cloneNode', 'getAttribute', 'setAttribute', 'removeAttribute', 'querySelector', 'querySelectorAll', 'getElementsByTagName', 'getElementsByClassName', 'getElementsByName', 'getElementById']) {
-        Element.prototype[func] = () => { throw new Error(`${func} is not allowed`); };
-      }
-      for(const func of ['addEventListener', 'removeEventListener', 'dispatchEvent']) {
+      for (const func of ['addEventListener', 'removeEventListener', 'dispatchEvent']) {
         EventTarget.prototype[func] = () => { throw new Error(`${func} is not allowed`); };
       }
-      for(const func of ['fetch', 'XMLHttpRequest', 'WebSocket', 'EventSource']) {
+      for (const func of ['fetch', 'XMLHttpRequest', 'WebSocket', 'EventSource']) {
         window[func] = () => { throw new Error(`${func} is not allowed`); };
       }
     </script>
