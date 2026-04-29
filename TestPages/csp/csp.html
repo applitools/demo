@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>csp</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'sha256-Zmjo2dZV59Q7bspK/FYBw4Wm9nZEn/va97jx++IzqwI=';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'sha256-cEp6MOIugkU20CR8ejEke7BUoeD5BfhYxm5q3aEQ7DM=';">
   </head>
   <body>
     <script>
@@ -17,16 +17,24 @@
         snapshot, allowing the iframe sandbox to work and isolating dom-snapshot from the patches.
       */
 
-      // JSON.stringify acts as a tripwire: if dom-snapshot's iframe sandbox fails (because
-      // CSP blocks script injection and no bypass is active), it falls back to the main
-      // context where this patch would throw and the snapshot would fail.
-      // With APPLITOOLS_BYPASS_CSP=true, the sandbox script injects successfully and
-      // dom-snapshot runs inside the iframe's isolated JS context where JSON is clean.
+      // These patches simulate prototype.js-style monkey-patching.
+      // If dom-snapshot's iframe sandbox fails (CSP blocks injection, no bypass active),
+      // it falls back to this context and breaks. With APPLITOOLS_BYPASS_CSP=true the
+      // sandbox injects successfully and dom-snapshot runs in the iframe's isolated JS context.
       //
-      // Note: Array.prototype.* is intentionally NOT patched here. Dom-snapshot's sandbox
-      // wrapper code (which runs in the main context) uses Array methods to manage the
-      // iframe lifecycle, so patching them would break the snapshot even with CSP bypass.
-      JSON.stringify = () => { throw new Error('stringify is not allowed'); };
+      // Note: JSON.stringify is intentionally NOT patched here. ChromeDriver serializes
+      // all executeScript results using window.JSON.stringify, so patching it would break
+      // every script execution regardless of whether the sandbox is working.
+      Array.prototype.map = function() { throw new Error('map is not allowed'); };
+      Array.prototype.filter = function() { throw new Error('filter is not allowed'); };
+      Array.prototype.forEach = function() { throw new Error('forEach is not allowed'); };
+      Array.prototype.reduce = function() { throw new Error('reduce is not allowed'); };
+      Array.prototype.find = function() { throw new Error('find is not allowed'); };
+      Array.prototype.includes = function() { throw new Error('includes is not allowed'); };
+      Object.keys = function() { throw new Error('Object.keys is not allowed'); };
+      Object.values = function() { throw new Error('Object.values is not allowed'); };
+      Object.entries = function() { throw new Error('Object.entries is not allowed'); };
+      Object.assign = function() { throw new Error('Object.assign is not allowed'); };
     </script>
   </body>
 </html>
