@@ -1085,9 +1085,20 @@ function parseConfig(logs) {
     if (useDomMatch) {
       config.useDom = useDomMatch[1] === "true";
     }
-    const lazyLoadMatch = line.match(/lazyLoad:\s*(true|false|undefined)/);
-    if (lazyLoadMatch && lazyLoadMatch[1] !== "undefined") {
-      config.lazyLoad = lazyLoadMatch[1] === "true";
+    const lazyLoadObjectMatch = line.match(
+      /lazyLoad:\s*\{\s*scrollLength:\s*(\d+),\s*waitingTime:\s*(\d+),\s*maxAmountToScroll:\s*(\d+)\s*\}/
+    );
+    if (lazyLoadObjectMatch) {
+      config.lazyLoad = {
+        scrollLength: parseInt(lazyLoadObjectMatch[1], 10),
+        waitingTime: parseInt(lazyLoadObjectMatch[2], 10),
+        maxAmountToScroll: parseInt(lazyLoadObjectMatch[3], 10)
+      };
+    } else {
+      const lazyLoadBoolMatch = line.match(/lazyLoad:\s*(true|false)/);
+      if (lazyLoadBoolMatch) {
+        config.lazyLoad = lazyLoadBoolMatch[1] === "true";
+      }
     }
     const autProxyMatch = line.match(/autProxy:\s*(true|false|undefined)/);
     if (autProxyMatch && autProxyMatch[1] !== "undefined") {
