@@ -13,6 +13,11 @@
     </script>
     <script src="https://unpkg.com/@applitools/core@4.16.2/dist/troubleshoot/logs.js"></script>
 
+    <!-- SDK Debug Analysis panel: correct lazyLoad detection + stall / abort / executePoll
+         diagnostics (FLD-4750). Self-contained; hooks the file input below. -->
+    <div id="sda-root"></div>
+    <script src="./sdk-debug-analysis.js"></script>
+
     <div id="logsViewerApp"></div>
 
     <div class="container">

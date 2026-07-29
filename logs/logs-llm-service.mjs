@@ -1085,9 +1085,26 @@ function parseConfig(logs) {
     if (useDomMatch) {
       config.useDom = useDomMatch[1] === "true";
     }
-    const lazyLoadMatch = line.match(/lazyLoad:\s*(true|false|undefined)/);
-    if (lazyLoadMatch && lazyLoadMatch[1] !== "undefined") {
-      config.lazyLoad = lazyLoadMatch[1] === "true";
+    // lazyLoad is logged as an object, e.g.
+    //   lazyLoad: { scrollLength: 300, waitingTime: 2000, maxAmountToScroll: 15000 }
+    // The previous `(true|false|undefined)` regex never matched that shape, so lazyLoad was
+    // reported as "Not Set" even when it was configured (FLD-4750). Parse the object form and
+    // fall back to the bare boolean form. Downstream code already treats config.lazyLoad as an
+    // object (scrollLength / waitingTime / maxAmountToScroll), so the object is the correct value.
+    const lazyLoadObjectMatch = line.match(
+      /lazyLoad:\s*\{\s*scrollLength:\s*(\d+),\s*waitingTime:\s*(\d+),\s*maxAmountToScroll:\s*(\d+)\s*\}/
+    );
+    if (lazyLoadObjectMatch) {
+      config.lazyLoad = {
+        scrollLength: parseInt(lazyLoadObjectMatch[1], 10),
+        waitingTime: parseInt(lazyLoadObjectMatch[2], 10),
+        maxAmountToScroll: parseInt(lazyLoadObjectMatch[3], 10)
+      };
+    } else {
+      const lazyLoadBoolMatch = line.match(/lazyLoad:\s*(true|false)/);
+      if (lazyLoadBoolMatch) {
+        config.lazyLoad = lazyLoadBoolMatch[1] === "true";
+      }
     }
     const autProxyMatch = line.match(/autProxy:\s*(true|false|undefined)/);
     if (autProxyMatch && autProxyMatch[1] !== "undefined") {
