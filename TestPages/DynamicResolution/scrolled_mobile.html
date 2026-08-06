@@ -80,10 +80,15 @@
       oH.innerHTML = window.outerHeight + " px";
       iW.innerHTML = window.innerWidth + " px";
       iH.innerHTML = window.innerHeight + " px";
-      sW.innerHTML = document.documentElement.scrollWidth + " px";
+      var saveSw = document.documentElement.scrollWidth;
+      sW.innerHTML = saveSw + " px";
       sH.innerHTML = document.documentElement.scrollHeight + " px";
       cW.innerHTML = document.documentElement.clientWidth + " px";
       cH.innerHTML = document.documentElement.clientHeight + " px";
+      // recheck the final 'scrollWidth' to ensure it was not changed 
+      if(saveSw !== document.documentElement.scrollWidth){
+        sW.innerHTML = document.documentElement.scrollWidth + " px";
+      }
     }
     updateData();
     window.addEventListener("resize", () => {
