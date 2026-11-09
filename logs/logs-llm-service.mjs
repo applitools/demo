@@ -290,7 +290,7 @@ function runLogPipeline(raw, parser) {
     lineCount: cleaned.split("\n").length
   };
 }
-const mod$a = {
+const mod$b = {
   id: "logsOverview",
   title: "Logs Overview",
   isPresent: () => true,
@@ -316,7 +316,7 @@ const mod$a = {
     };
   }
 };
-const mod$9 = {
+const mod$a = {
   id: "testResults",
   title: "Test Results",
   isPresent: (_data, index) => index.eyesUfg.size + index.eyesClassic.size > 0,
@@ -429,7 +429,7 @@ function collect(nodes, match, topN) {
   }
   return out;
 }
-const mod$8 = {
+const mod$9 = {
   id: "errorAnalysis",
   title: "Error Analysis",
   isPresent: (_data, index) => index.fatalNodes.length + index.errorNodes.length + index.warnNodes.length > 0,
@@ -782,9 +782,9 @@ function redactSensitive(obj) {
   return obj;
 }
 function extractAccountInfo(data) {
-  const MARKER = 'Request "getAccountInfo" finished successfully with body ';
+  const MARKER2 = 'Request "getAccountInfo" finished successfully with body ';
   for (const [, node] of searchLogs(data, "finished successfully with body")) {
-    const slice = sliceFromMarker(node, MARKER);
+    const slice = sliceFromMarker(node, MARKER2);
     if (!slice) continue;
     const objStart = slice.indexOf("{");
     if (objStart === -1) continue;
@@ -818,7 +818,7 @@ function extractGeneralInfo(data) {
   }
   return { sdkData, coreMetadata, driverCapabilities, nmlInfo, accountInfo };
 }
-const mod$7 = {
+const mod$8 = {
   id: "generalInfo",
   title: "General Information",
   isPresent: () => true,
@@ -896,7 +896,7 @@ const mod$7 = {
     };
   }
 };
-const mod$6 = {
+const mod$7 = {
   id: "resourceUploads",
   title: "Resource Uploads",
   isPresent(data, index) {
@@ -931,7 +931,7 @@ const mod$6 = {
     };
   }
 };
-function extractTimestamp(logLine) {
+function extractTimestamp$1(logLine) {
   const timestampMatch = logLine.match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/);
   return timestampMatch ? new Date(timestampMatch[1]) : null;
 }
@@ -1150,7 +1150,7 @@ function parseStitchParts(logs) {
   let screenshotEndTime;
   for (let i = 0; i < logs.length; i++) {
     const line = logs[i];
-    const timestamp = extractTimestamp(line);
+    const timestamp = extractTimestamp$1(line);
     const partInfo = parsePartInfo(line);
     if (partInfo) {
       if (currentPart && currentPart.id) {
@@ -1269,7 +1269,7 @@ function summarizeCheck(c) {
     totalDurationMs
   };
 }
-const mod$5 = {
+const mod$6 = {
   id: "classicCheck",
   title: "Classic Check Analysis",
   isPresent: (data) => extractClassicCheckData(data).length > 0,
@@ -1493,7 +1493,7 @@ function analyzeConfigurationVariations(allConfigs) {
     uniqueConfigurations: Object.keys(lazyLoadGroups).length + Object.keys(waitBeforeCaptureGroups).length
   };
 }
-const mod$4 = {
+const mod$5 = {
   id: "performanceConfig",
   title: "Potential Check Settings Issues",
   isPresent(data) {
@@ -1532,7 +1532,7 @@ function timeOf(node) {
 function topByTime(entries, topN) {
   return entries.map(([key, node]) => ({ key, timeMs: timeOf(node) })).filter((e) => e.timeMs > 0).sort((a, b) => b.timeMs - a.timeMs).slice(0, topN);
 }
-const mod$3 = {
+const mod$4 = {
   id: "timeAnalysis",
   title: "Time Analysis Overview",
   isPresent: (data) => typeof data.time === "number",
@@ -1578,7 +1578,7 @@ const mod$3 = {
     };
   }
 };
-const mod$2 = {
+const mod$3 = {
   id: "networkAnalysis",
   title: "Network Analysis",
   isPresent: (_data, index) => index.networkNodes.length > 0,
@@ -1632,14 +1632,14 @@ function flattenObject(obj) {
 }
 function extractOpenEyesSettings(data, topN) {
   const results = [];
-  const MARKER = 'Command "openEyes" is called with settings ';
+  const MARKER2 = 'Command "openEyes" is called with settings ';
   for (const [, node] of searchLogs(data, 'Command "openEyes" is called')) {
     if (results.length >= topN) break;
     if (!Array.isArray(node.logs)) continue;
     const joined = node.logs.join("\n");
-    const idx = joined.indexOf(MARKER);
+    const idx = joined.indexOf(MARKER2);
     if (idx === -1) continue;
-    const afterMarker = joined.substring(idx + MARKER.length);
+    const afterMarker = joined.substring(idx + MARKER2.length);
     const objStart = afterMarker.indexOf("{");
     if (objStart === -1) continue;
     const parsed = parseLooseObject(afterMarker.substring(objStart));
@@ -1650,7 +1650,7 @@ function extractOpenEyesSettings(data, topN) {
   }
   return results;
 }
-const mod$1 = {
+const mod$2 = {
   id: "testDetails",
   title: "Test Details",
   isPresent: (_data, index) => index.eyesUfg.size + index.eyesClassic.size > 0,
@@ -1692,7 +1692,7 @@ const mod$1 = {
     };
   }
 };
-const mod = {
+const mod$1 = {
   id: "renderTargets",
   title: "Render Targets Analysis",
   isPresent: (_data, index) => index.renderTargets.size > 0,
@@ -1712,8 +1712,214 @@ const mod = {
     };
   }
 };
+const TERMINAL_STATUSES = ["done", "failed", "dismissed"];
+function isTerminal(status) {
+  return TERMINAL_STATUSES.includes(status);
+}
+const MARKER = "[task-graph]";
+const TS_RE = /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)/;
+function extractTimestamp(line) {
+  const m = line.match(TS_RE);
+  return m ? new Date(m[1]) : null;
+}
+function parseRefList(raw) {
+  const trimmed = raw.trim();
+  if (!trimmed) return [];
+  return trimmed.split(",").map((part) => part.trim()).filter(Boolean).map((part) => {
+    const bits = part.split(/\s+/);
+    return { type: bits[0], id: bits.slice(1).join(" ") };
+  });
+}
+function parseLine(line, seq) {
+  const at = line.indexOf(MARKER);
+  if (at < 0) return null;
+  const body = line.slice(at + MARKER.length).trim();
+  const ts = extractTimestamp(line);
+  if (body.startsWith("added ")) {
+    const m2 = body.match(/^added (\S+) (\S+) deps=\[(.*)\]$/);
+    if (!m2) return null;
+    const eyes = line.match(/\b(eyes-[a-z]+-[a-z0-9]+)\b/)?.[1];
+    const env = line.match(/\b(environment-[a-z0-9]+)\b/)?.[1];
+    return {
+      kind: "added",
+      ts,
+      seq,
+      taskType: m2[1],
+      id: m2[2],
+      deps: parseRefList(m2[3]),
+      eyes,
+      env
+    };
+  }
+  if (body.startsWith("collapsed ")) {
+    const m2 = body.match(
+      /^collapsed (\S+) (\S+) \+ (\S+) (\S+) -> (\S+) (\S+)(?: deps=\[(.*)\])?$/
+    );
+    if (!m2) return null;
+    return {
+      kind: "collapsed",
+      ts,
+      seq,
+      pred: { type: m2[1], id: m2[2] },
+      succ: { type: m2[3], id: m2[4] },
+      repl: { type: m2[5], id: m2[6] },
+      replDeps: m2[7] === void 0 ? void 0 : parseRefList(m2[7])
+    };
+  }
+  const m = body.match(/^(\S+) (\S+): (\S+) -> (\S+)$/);
+  if (!m) return null;
+  return { kind: "status", ts, seq, taskType: m[1], id: m[2], from: m[3], to: m[4] };
+}
+function extractTaskGraphEvents(data) {
+  const nodes = searchLogs(data, MARKER);
+  const seen = /* @__PURE__ */ new Set();
+  const events = [];
+  let seq = 0;
+  for (const [, node] of nodes) {
+    if (!node || seen.has(node)) continue;
+    seen.add(node);
+    const lines = node.logs;
+    if (!Array.isArray(lines)) continue;
+    for (const line of lines) {
+      if (typeof line !== "string" || !line.includes(MARKER)) continue;
+      const event = parseLine(line, seq);
+      if (event) {
+        events.push(event);
+        seq++;
+      }
+    }
+  }
+  events.sort((a, b) => {
+    const ta = a.ts ? a.ts.getTime() : NaN;
+    const tb = b.ts ? b.ts.getTime() : NaN;
+    if (!Number.isNaN(ta) && !Number.isNaN(tb) && ta !== tb) return ta - tb;
+    return a.seq - b.seq;
+  });
+  return events;
+}
+function hasTaskGraphEvents(data) {
+  return searchLogs(data, MARKER).length > 0;
+}
+function buildEventTimeline(events) {
+  const rows = [];
+  let i = 0;
+  while (i < events.length) {
+    const key = events[i].ts ? events[i].ts.getTime() : null;
+    let j = i;
+    let added = 0;
+    let status = 0;
+    let collapse = 0;
+    while (j < events.length && (events[j].ts ? events[j].ts.getTime() : null) === key) {
+      const k = events[j].kind;
+      if (k === "added") added++;
+      else if (k === "status") status++;
+      else collapse++;
+      j++;
+    }
+    const parts = [];
+    if (added) parts.push(`registered ${added} task${added === 1 ? "" : "s"}`);
+    if (status) parts.push(`${status} status change${status === 1 ? "" : "s"}`);
+    if (collapse) parts.push(`${collapse} collapse${collapse === 1 ? "" : "s"}`);
+    rows.push({
+      ts: events[i].ts,
+      startIndex: i,
+      endIndex: j - 1,
+      addedCount: added,
+      statusCount: status,
+      collapseCount: collapse,
+      label: parts.join(", ") || "no changes"
+    });
+    i = j;
+  }
+  return rows;
+}
+function summarizeTaskGraph(events) {
+  const tasksByType = {};
+  const started = /* @__PURE__ */ new Map();
+  const ended = /* @__PURE__ */ new Map();
+  const typeOf = /* @__PURE__ */ new Map();
+  let collapses = 0;
+  for (const event of events) {
+    if (event.kind === "added") {
+      tasksByType[event.taskType] = (tasksByType[event.taskType] ?? 0) + 1;
+      typeOf.set(event.id, event.taskType);
+    } else if (event.kind === "status") {
+      typeOf.set(event.id, event.taskType);
+      if (event.to === "running" && !started.has(event.id)) started.set(event.id, event.ts);
+      if (isTerminal(event.to)) ended.set(event.id, { ts: event.ts, status: event.to });
+    } else {
+      collapses++;
+      tasksByType[event.repl.type] = (tasksByType[event.repl.type] ?? 0) + 1;
+      typeOf.set(event.repl.id, event.repl.type);
+    }
+  }
+  const durations = [];
+  for (const [id, type] of typeOf) {
+    const startedAt = started.get(id) ?? null;
+    const end = ended.get(id);
+    const endedAt = end?.ts ?? null;
+    const durationMs = startedAt && endedAt ? endedAt.getTime() - startedAt.getTime() : null;
+    durations.push({
+      id,
+      type,
+      startedAt,
+      endedAt,
+      durationMs,
+      finalStatus: end?.status ?? "running"
+    });
+  }
+  durations.sort((a, b) => (b.durationMs ?? -1) - (a.durationMs ?? -1));
+  const stamps = events.map((e) => e.ts).filter((d) => d != null);
+  const spanMs = stamps.length >= 2 ? Math.max(...stamps.map((d) => d.getTime())) - Math.min(...stamps.map((d) => d.getTime())) : null;
+  return {
+    totalEvents: events.length,
+    totalTasks: events.filter((e) => e.kind === "added").length + collapses,
+    collapses,
+    tasksByType,
+    spanMs,
+    durations
+  };
+}
+const mod = {
+  id: "taskGraph",
+  title: "Task Manager",
+  isPresent: (data) => hasTaskGraphEvents(data),
+  extract(data, _index, opts) {
+    const events = extractTaskGraphEvents(data);
+    const summary = summarizeTaskGraph(events);
+    const topN = opts?.topN ?? 10;
+    return {
+      totalTasks: summary.totalTasks,
+      totalEvents: summary.totalEvents,
+      collapses: summary.collapses,
+      tasksByType: summary.tasksByType,
+      spanMs: summary.spanMs,
+      timeline: buildEventTimeline(events).slice(0, topN).map((r) => ({ ts: r.ts ? r.ts.toISOString() : null, label: r.label })),
+      slowest: summary.durations.filter((d) => d.durationMs != null).slice(0, topN).map((d) => ({
+        id: d.id,
+        type: d.type,
+        durationMs: d.durationMs,
+        finalStatus: d.finalStatus
+      }))
+    };
+  },
+  summarize(p) {
+    const types = Object.entries(p.tasksByType).map(([t, n]) => `${t}×${n}`).join(" ");
+    return {
+      oneLine: `${p.totalTasks} task(s) across ${p.totalEvents} event(s), ${p.collapses} collapse(s)${types ? ` — ${types}` : ""}`,
+      count: p.totalTasks,
+      severity: "info",
+      collapses: p.collapses,
+      tasksByType: p.tasksByType,
+      spanMs: p.spanMs,
+      slowest: p.slowest
+    };
+  }
+};
 const SECTIONS = [
+  mod$b,
   mod$a,
+  mod,
   mod$9,
   mod$8,
   mod$7,
@@ -1722,8 +1928,7 @@ const SECTIONS = [
   mod$4,
   mod$3,
   mod$2,
-  mod$1,
-  mod
+  mod$1
 ];
 let cached = null;
 function isCoreParser(x) {
