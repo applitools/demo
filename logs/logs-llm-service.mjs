@@ -1839,6 +1839,7 @@ function summarizeTaskGraph(events) {
   const ended = /* @__PURE__ */ new Map();
   const typeOf = /* @__PURE__ */ new Map();
   let collapses = 0;
+  let dismisses = 0;
   for (const event of events) {
     if (event.kind === "added") {
       tasksByType[event.taskType] = (tasksByType[event.taskType] ?? 0) + 1;
@@ -1846,6 +1847,7 @@ function summarizeTaskGraph(events) {
     } else if (event.kind === "status") {
       typeOf.set(event.id, event.taskType);
       if (event.to === "running" && !started.has(event.id)) started.set(event.id, event.ts);
+      if (event.to === "dismissed") dismisses++;
       if (isTerminal(event.to)) ended.set(event.id, { ts: event.ts, status: event.to });
     } else {
       collapses++;
@@ -1875,6 +1877,7 @@ function summarizeTaskGraph(events) {
     totalEvents: events.length,
     totalTasks: events.filter((e) => e.kind === "added").length + collapses,
     collapses,
+    dismisses,
     tasksByType,
     spanMs,
     durations
