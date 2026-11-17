@@ -253,7 +253,14 @@ function cleanLogData(data) {
   }
   return data.split("\n").map(
     (s) => s.replace(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s+(stdout|stderr)\s+\w\s+/, "")
-  ).map((s) => s.replace(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,7}Z\s+/, "")).map((s) => s.replace(/^background\.js:\d+\s+/, "")).map((s) => s.replace(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]\s+/, "")).map((s) => s.replace(/^\[\d+-\d+\]\s/, "")).join("\n");
+  ).map((s) => s.replace(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,7}Z\s+/, "")).map((s) => s.replace(/^background\.js:\d+\s+/, "")).map((s) => s.replace(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]\s+/, "")).map((s) => s.replace(/^\[\d+-\d+\]\s/, "")).flatMap((s) => {
+    if (s.length <= 5e4) return [s];
+    const chunks = [];
+    for (let i = 0; i < s.length; i += 5e4) {
+      chunks.push(s.slice(i, i + 5e4));
+    }
+    return chunks;
+  }).join("\n");
 }
 const CHUNK_LINE_COUNT = 1e4;
 const ENTRY_START_PATTERN = /^[a-z][\w-]* \(/;
